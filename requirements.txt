@@ -1,6 +1,6 @@
 streamlit>=1.36,<2.0
-numpy<2
-Pillow>=10.0
-opencv-python-headless>=4.8
+numpy==1.26.4
+Pillow>=10,<13
+opencv-python-headless>=4.8,<4.12
 gfpgan==1.3.8
-basicsr-fixed
+basicsr @ git+https://github.com/syed177013/BasicSR.git@syed177013-patch-1
