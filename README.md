@@ -1,4 +1,4 @@
-# AcneClear AI
+# AcneClear 
 
 <p align="center">
   <strong>AI-assisted portrait retouching and skin-wellness guidance</strong><br>
@@ -7,7 +7,6 @@
 
 <p align="center">
   <a href="https://acneclear.streamlit.app/">Open the live demo</a> ·
-  <a href="https://github.com/Vileka06/AcneClear">GitHub repository</a>
 </p>
 
 ---
