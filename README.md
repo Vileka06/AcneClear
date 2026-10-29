@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <a href="https://acneclear.streamlit.app/">Open the live demo</a> ·
+  <a href="https://acneclear.streamlit.app/">Open the live demo</a> 
 </p>
 
 ---
