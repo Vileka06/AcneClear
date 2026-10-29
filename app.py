@@ -94,6 +94,12 @@ st.markdown("""
 
 @st.cache_resource(show_spinner=False)
 def load_restorer():
+    # Compatibility shim for BasicSR releases that import the removed
+    # torchvision.transforms.functional_tensor module.
+    import sys
+    import torchvision.transforms.functional as tv_functional
+    sys.modules.setdefault("torchvision.transforms.functional_tensor", tv_functional)
+
     from gfpgan import GFPGANer
     if not WEIGHT_PATH.exists():
         with st.spinner("Downloading the official GFPGAN v1.3 model (first run only)…"):
