@@ -43,7 +43,7 @@ for key, value in {
     if key not in st.session_state:
         st.session_state[key] = value
 
-# Palette: cream beige, muted sage grey, deep burgundy
+# Palette: white, muted blue-grey, deep navy
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
