@@ -88,21 +88,41 @@ button[data-baseweb="tab"][aria-selected="true"] {background:var(--burgundy);col
 [data-testid="stChatInput"] button {color:#651F32 !important;}
 .small-note {color:var(--muted);font-size:11px;line-height:1.6;}
 hr {border-color:var(--line);}
+.brand-row {background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px 17px;margin-bottom:16px;box-shadow:0 5px 20px rgba(65,42,35,.035);}
+.intro-strip {background:linear-gradient(110deg,#fff 0%,#F8F3EA 100%);border:1px solid var(--line);border-radius:16px;padding:17px 20px;margin:0 0 22px 0;}
+.intro-kicker {font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:#8C5966;font-weight:800;margin-bottom:5px;}
+.intro-heading {font-family:'Manrope',sans-serif;font-size:21px;font-weight:800;color:var(--burgundy);line-height:1.2;}
+.intro-copy {font-size:13px;color:var(--muted);line-height:1.55;margin-top:5px;}
+.section-heading {background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 20px;margin-bottom:16px;}
+.feature-card {background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 16px;min-height:115px;}
+.feature-card h4 {margin:0 0 6px 0;color:var(--burgundy);font-family:'Manrope',sans-serif;font-size:15px;}
+.feature-card p {margin:0;color:var(--muted);font-size:12px;line-height:1.5;}
+.response-card {background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:12px 0;color:var(--ink);}
+[data-testid="stChatMessage"] {background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px 15px;margin:10px 0;}
+[data-testid="stChatInput"] {background:#fff;border:1px solid #CFC2B8;border-radius:14px;box-shadow:0 5px 18px rgba(65,42,35,.07);}
+[data-testid="stChatInput"] textarea {background:transparent !important;color:#342B2B !important;}
+.stChatFloatingInputContainer {background:rgba(243,235,221,.97) !important;border-top:1px solid var(--line);padding-top:10px;}
+div[data-testid="stButton"] button {transition:all .15s ease;}
+div[data-testid="stButton"] button:focus {border-color:var(--burgundy) !important;box-shadow:0 0 0 2px rgba(101,31,50,.12) !important;}
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
 <div class="brand-row">
-  <div class="brand-mark">✳</div>
-  <div>
-    <div class="brand-name">AcneClear AI</div>
-    <div class="brand-sub">Skin Wellness Studio · Photo retouching and everyday guidance</div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="brand-mark">✳</div>
+    <div>
+      <div class="brand-name">AcneClear AI</div>
+      <div class="brand-sub">Skin Wellness Studio · Photo retouching and everyday guidance</div>
+    </div>
   </div>
-  <div style="margin-left:auto"><span class="pill">SKIN WELLNESS</span></div>
+  <div style="margin-left:auto"><span class="pill">AI WELLNESS STUDIO</span></div>
 </div>
-<div class="eyebrow">AI-assisted skin wellness</div>
-<h1 class="hero-title">Feel good in your skin.<br>Keep your edits natural.</h1>
-<p class="hero-copy">Retouch a portrait, explore gentle skincare habits, plan balanced meals, and track your routine in one simple workspace.</p>
+<div class="intro-strip">
+  <div class="intro-kicker">YOUR PERSONAL SKIN WELLNESS WORKSPACE</div>
+  <div class="intro-heading">Care for your skin. Make informed everyday choices.</div>
+  <div class="intro-copy">Restore a portrait, explore gentle skincare guidance, plan balanced meals, or ask the AcneClear AI assistant.</div>
+</div>
 """, unsafe_allow_html=True)
 
 def load_restorer():
@@ -339,7 +359,9 @@ elif page == "Beauty Tips":
                 st.error(f"Could not reach the AI service: {type(exc).__name__}: {exc}")
     if st.session_state.get("acneclear_beauty_response"):
         st.markdown("### Your AI-generated skincare guidance")
+        st.markdown('<div class="response-card">', unsafe_allow_html=True)
         st.markdown(st.session_state["acneclear_beauty_response"])
+        st.markdown('</div>', unsafe_allow_html=True)
     st.info(
         "This is general skincare education, not a diagnosis or treatment plan. "
         "For painful, persistent, worsening, or scarring acne, consult a dermatologist."
@@ -409,7 +431,9 @@ elif page == "Diet Planner":
                 st.error(f"Could not reach the AI service: {type(exc).__name__}: {exc}")
     if st.session_state.get("acneclear_diet_response"):
         st.markdown("### Your AI-generated meal ideas")
+        st.markdown('<div class="response-card">', unsafe_allow_html=True)
         st.markdown(st.session_state["acneclear_diet_response"])
+        st.markdown('</div>', unsafe_allow_html=True)
     st.info(
         "Meal ideas are general information, not a medical diet or treatment. "
         "For medical conditions, pregnancy, serious allergies, or medicine-related diet questions, "
@@ -418,30 +442,51 @@ elif page == "Diet Planner":
 
 elif page == "AI Chatbot":
     st.markdown(
+        '<div class="section-heading">'
         '<div class="eyebrow">ACNECLEAR AI ASSISTANT</div>'
-        '<h1 class="hero-title">Ask me anything.</h1>'
-        '<p class="hero-copy">Ask about acne education, skincare, recipes, studies, coding, technology, writing, science, or everyday questions.</p>',
+        '<h1 class="hero-title" style="font-size:34px">Ask anything. Understand your project.</h1>'
+        '<p class="hero-copy">One assistant for everyday questions and everything behind AcneClear AI: GFPGAN, Qwen3, LoRA, datasets, training, skincare and meal planning.</p>'
+        '</div>',
         unsafe_allow_html=True,
     )
-    st.caption(
-        "One assistant for your entire AcneClear project and everyday questions. "
-        "Ask about GFPGAN, Qwen3, LoRA, datasets, epochs, metrics, skincare, meals, coding, or general knowledge."
-    )
-    st.markdown(
-        "**Try asking:** Explain my project architecture · What is the difference between GFPGAN and Qwen3? · "
-        "How many epochs did I train? · What does LoRA do?"
-    )
+
     if not _acneclear_setting("ACNECLEAR_CHAT_SPACE"):
         st.warning(
-            "The chatbot backend is not connected yet. Upload your saved LoRA adapter to Hugging Face, "
-            "deploy the chatbot_space folder as a Gradio Space, then add ACNECLEAR_CHAT_SPACE in Streamlit Secrets. "
-            "Follow CHATBOT_DEPLOYMENT.md in the GitHub repository."
+            "Your chatbot model is not connected yet. Upload the trained adapter, deploy the chatbot_space folder as a Hugging Face Gradio Space, "
+            "then add ACNECLEAR_CHAT_SPACE in Streamlit Secrets. Follow CHATBOT_DEPLOYMENT.md in GitHub."
         )
+
+    pending_prompt = st.session_state.pop("acneclear_pending_prompt", None)
+
+    if not st.session_state["acneclear_chat_history"] and not pending_prompt:
+        st.markdown(
+            '<div class="response-card">'
+            '<h3 style="color:#651F32;margin-top:0">Welcome to AcneClear AI</h3>'
+            '<p style="color:#756B68">I can explain how your project works, help with skincare and meal ideas, or answer general questions. '
+            'Choose a suggested question or type your own below.</p>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown("**Explore a topic**")
+        prompt_options = [
+            ("Project overview", "Explain my complete AcneClear AI project architecture in simple words."),
+            ("My trained LLM", "Explain Qwen3-0.6B, its 28 transformer blocks and how I fine-tuned it using LoRA."),
+            ("Training results", "Explain my 3 training epochs, dataset split, test loss, perplexity and token accuracy."),
+            ("GFPGAN vs LLM", "What is the difference between GFPGAN and Qwen3 in my project?"),
+        ]
+        col_a, col_b = st.columns(2, gap="medium")
+        for index, (label, prompt_text) in enumerate(prompt_options):
+            target = col_a if index % 2 == 0 else col_b
+            with target:
+                if st.button(label, key=f"chat_suggestion_{index}", use_container_width=True):
+                    st.session_state["acneclear_pending_prompt"] = prompt_text
+                    st.rerun()
+
     for item in st.session_state["acneclear_chat_history"]:
         with st.chat_message(item["role"]):
             st.markdown(item["content"])
 
-    prompt = st.chat_input("Ask AcneClear AI a question...")
+    prompt = pending_prompt or st.chat_input("Message AcneClear AI...")
     if prompt:
         previous_history = st.session_state["acneclear_chat_history"][-8:]
         st.session_state["acneclear_chat_history"].append({"role": "user", "content": prompt})
@@ -450,19 +495,20 @@ elif page == "AI Chatbot":
         with st.chat_message("assistant"):
             with st.spinner("AcneClear AI is thinking..."):
                 try:
-                    reply = ask_acneclear_ai("[GENERAL TOPIC]\n" + prompt, previous_history)
+                    reply = ask_acneclear_ai(prompt, previous_history)
                 except Exception as exc:
                     reply = (
-                        "The AI service is not connected or is temporarily unavailable. "
-                        "Check the Hugging Face Space status and the ACNECLEAR_CHAT_SPACE secret. "
+                        "I could not connect to the AcneClear AI model service. "
+                        "Please check that your Hugging Face Space is running and that ACNECLEAR_CHAT_SPACE is set in Streamlit Secrets. "
                         f"Technical detail: {type(exc).__name__}: {exc}"
                     )
                 st.markdown(reply)
         st.session_state["acneclear_chat_history"].append({"role": "assistant", "content": reply})
 
-    if st.button("Clear chat history"):
-        st.session_state["acneclear_chat_history"] = []
-        st.rerun()
+    if st.session_state["acneclear_chat_history"]:
+        if st.button("Start a new conversation", key="clear_chat_history"):
+            st.session_state["acneclear_chat_history"] = []
+            st.rerun()
 
 st.markdown("---")
 st.markdown('<div class="small-note">ACNECLEAR AI · Educational photo-retouching and wellness demo. Photo restoration is not a dedicated acne-removal model. Skincare and diet information is general education, not medical advice.</div>', unsafe_allow_html=True)
