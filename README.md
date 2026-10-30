@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>AI-assisted portrait retouching and skin-wellness guidance</strong><br>
-  A Streamlit project with a photo-retouching demo, skincare tips, and balanced meal ideas.
+  A Streamlit project with pretrained face restoration, AI-generated skincare guidance, meal planning, and a general-purpose chatbot.
 </p>
 
 <p align="center">
@@ -24,12 +24,19 @@
 - Download the processed result as a PNG.
 
 ### 2. Beauty Tips
-- General morning and evening skincare routine suggestions.
-- Gentle skincare habits and reminders.
+- Collects skin type, concerns, and sensitivity.
+- Uses the live AI assistant to generate general educational morning and evening skincare suggestions.
+- Includes safety guidance and does not diagnose or prescribe.
 
 ### 3. Diet Planner
-- General meal ideas for vegetarian, egg-based, and meat/fish preferences.
-- Balanced eating suggestions and notes about individual food triggers.
+- Collects food preference, Indian meal style, budget, meals, and foods to avoid.
+- Uses the live AI assistant to generate general meal ideas.
+- Does not create medical diets or promise that food cures acne.
+
+### 4. AI Chatbot
+- General-purpose chat for education, programming, science, writing, and everyday questions.
+- Project-aware answers about AcneClear architecture, GFPGAN, Qwen3, LoRA, datasets, training, metrics, and deployment.
+- Maintains recent conversation context. No live web browsing is provided.
 
 ## How the photo editor works
 
