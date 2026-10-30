@@ -119,16 +119,11 @@ AcneClear/
 - [TencentARC GFPGAN](https://github.com/TencentARC/GFPGAN) for pretrained face-restoration technology.
 - [Streamlit](https://streamlit.io/) for the web app framework.
 
-## 4. Fine-tuned LLM assistant
+## 4. AI assistant and fine-tuning experiment
 
-The Beauty Tips and Diet Planner sections now use the trained Qwen3-0.6B LoRA adapter through a separate Hugging Face Gradio Space. A general-purpose **AI Chatbot** section is also available.
+- **Live website chatbot:** Gemini 3.5 Flash-Lite using the Google AI Studio Gemini API free tier.
+- **Beauty Tips and Diet Planner:** use the same server-side AI assistant to produce educational routines and general meal ideas.
+- **Separate model-training experiment:** Qwen3-0.6B fine-tuned with LoRA in Google Colab. The saved adapter is a project training artifact and is not the online inference model in the current free website deployment.
+- **Acne Remover:** continues to use pretrained GFPGAN v1.3 and the existing OpenCV image-processing steps.
 
-- **Base LLM:** Qwen/Qwen3-0.6B
-- **Fine-tuning:** Supervised fine-tuning with LoRA
-- **Website features:** general chatbot, personalized educational skincare guidance, and meal ideas
-- **Inference:** Hugging Face Space; Streamlit sends prompts through the Gradio API
-- **GFPGAN:** the existing photo-restoration implementation remains separate and unchanged
-
-See [CHATBOT_DEPLOYMENT.md](CHATBOT_DEPLOYMENT.md) for adapter upload, Space setup, and Streamlit Secrets configuration.
-
-The chatbot does not have live web access. Skincare responses are educational, not diagnosis or treatment. Meal suggestions are not medical diets. The fine-tuning test metrics are language-model diagnostics, not medical correctness scores.
+See [CHATBOT_DEPLOYMENT.md](CHATBOT_DEPLOYMENT.md) for the free API-key setup. Free-tier access and quotas depend on the Google AI Studio project/account. Free-tier requests may be used to improve Google's products; do not send sensitive personal information.
