@@ -738,78 +738,129 @@ elif page == "Diet Planner":
 elif page == "AI Chatbot":
     st.markdown(
         '<div class="section-heading">'
-        '<div class="eyebrow">ACNECLEAR AI ASSISTANT</div>'
-        '<h1 class="hero-title" style="font-size:34px">Ask anything. Understand your project.</h1>'
-        '<p class="hero-copy">One assistant for everyday questions and everything behind AcneClear AI: GFPGAN, Qwen3, LoRA, datasets, training, skincare and meal planning.</p>'
+        '<div class="eyebrow">ACNECLEAR INTELLIGENCE</div>'
+        '<h1 class="hero-title" style="font-size:36px">Your assistant. One conversation away.</h1>'
+        '<p class="hero-copy">Ask everyday questions, understand your skin-wellness options, or get clear explanations of how AcneClear AI was built.</p>'
         '</div>',
         unsafe_allow_html=True,
     )
 
-    if not _acneclear_setting("GEMINI_API_KEY"):
-        st.info(
-            "Chatbot setup: add a free GEMINI_API_KEY in Streamlit Community Cloud → App settings → Secrets. "
-            "Create it at aistudio.google.com/apikey. Beauty Tips and Diet Planner still work with offline starter plans."
-        )
-    st.caption(
-        "Live chatbot engine: Gemini 3.5 Flash-Lite (free API tier). Your trained Qwen3-LoRA adapter remains a separate Colab training experiment."
+    api_ready = bool(_acneclear_setting("GEMINI_API_KEY"))
+    status_text = "AI service connected" if api_ready else "AI key required to start chatting"
+    status_color = "#16805D" if api_ready else "#9A6715"
+    st.markdown(
+        f'<div style="display:flex;align-items:center;gap:9px;margin:0 0 15px 2px">'
+        f'<span style="width:8px;height:8px;border-radius:50%;background:{status_color};display:inline-block"></span>'
+        f'<span style="font-size:12px;font-weight:700;color:{status_color}">{status_text}</span>'
+        f'<span style="color:#8190A3;font-size:12px;margin-left:auto">AcneClear AI assistant</span>'
+        f'</div>',
+        unsafe_allow_html=True,
     )
 
-    pending_prompt = st.session_state.pop("acneclear_pending_prompt", None)
+    focus_options = ["General AI", "Skin & wellness", "Project mentor"]
+    if "acneclear_chat_focus" not in st.session_state:
+        st.session_state["acneclear_chat_focus"] = "General AI"
 
-    if not st.session_state["acneclear_chat_history"] and not pending_prompt:
+    focus = st.radio(
+        "Choose an assistant focus",
+        focus_options,
+        horizontal=True,
+        key="acneclear_chat_focus",
+        label_visibility="collapsed",
+    )
+
+    suggestions = {
+        "General AI": [
+            ("Explain a concept", "Explain a difficult concept in simple words and give me an example."),
+            ("Help me code", "Help me write and understand a Python program with an example."),
+            ("Plan something", "Help me create a practical step-by-step plan for my goal."),
+        ],
+        "Skin & wellness": [
+            ("Understand acne", "Explain the common types of acne and how they differ. Keep it educational."),
+            ("Build a gentle routine", "Explain a simple morning and evening routine for acne-prone, oily skin."),
+            ("Understand ingredients", "Explain what salicylic acid, benzoyl peroxide and retinoids are generally used for, including common precautions."),
+        ],
+        "Project mentor": [
+            ("Explain my architecture", "Explain my complete AcneClear AI architecture in simple words."),
+            ("Explain my LLM", "Explain Qwen3-0.6B, its 28 Transformer blocks and how LoRA fine-tuning works in my project."),
+            ("Prepare my viva", "Ask me five faculty viva questions about AcneClear AI, one at a time, and evaluate my answers."),
+        ],
+    }
+
+    main_chat, side_panel = st.columns([0.72, 0.28], gap="large")
+
+    with side_panel:
         st.markdown(
             '<div class="response-card">'
-            '<h3 style="color:#17365D;margin-top:0">Welcome to AcneClear AI</h3>'
-            '<p style="color:#52657A">I can explain how your project works, help with skincare and meal ideas, or answer general questions. '
-            'Choose a suggested question or type your own below.</p>'
+            '<div class="eyebrow">QUICK START</div>'
+            '<h3 style="margin:0 0 6px 0;color:#17365D">Try a prompt</h3>'
+            '<p style="font-size:12px;color:#52657A;margin:0">Choose a starting point. You can continue with any question afterward.</p>'
             '</div>',
             unsafe_allow_html=True,
         )
-        st.markdown("**Explore a topic**")
-        prompt_options = [
-            ("Project overview", "Explain my complete AcneClear AI project architecture in simple words."),
-            ("My trained LLM", "Explain Qwen3-0.6B, its 28 transformer blocks and how I fine-tuned it using LoRA."),
-            ("Training results", "Explain my 3 training epochs, dataset split, test loss, perplexity and token accuracy."),
-            ("GFPGAN vs LLM", "What is the difference between GFPGAN and Qwen3 in my project?"),
-        ]
-        col_a, col_b = st.columns(2, gap="medium")
-        for index, (label, prompt_text) in enumerate(prompt_options):
-            target = col_a if index % 2 == 0 else col_b
-            with target:
-                if st.button(label, key=f"chat_suggestion_{index}", use_container_width=True):
-                    st.session_state["acneclear_pending_prompt"] = prompt_text
-                    st.rerun()
+        for index, (label, prompt_text) in enumerate(suggestions[focus]):
+            if st.button(label, key=f"assistant_prompt_{focus}_{index}", use_container_width=True):
+                st.session_state["acneclear_pending_prompt"] = prompt_text
+                st.rerun()
 
-    for item in st.session_state["acneclear_chat_history"]:
-        with st.chat_message(item["role"]):
-            st.markdown(item["content"])
+        st.markdown(
+            '<div class="response-card" style="margin-top:14px">'
+            '<div class="eyebrow">ABOUT THIS ASSISTANT</div>'
+            '<p style="font-size:12px;color:#52657A;margin:0">The focus only guides the response style. It does not restrict the topics you can ask about.</p>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
+        if st.button("Start a new chat", key="assistant_new_chat", use_container_width=True):
+            st.session_state["acneclear_chat_history"] = []
+            st.session_state.pop("acneclear_pending_prompt", None)
+            st.rerun()
 
+    with main_chat:
+        st.markdown(
+            '<div class="eyebrow" style="margin:2px 0 8px 0">CONVERSATION</div>',
+            unsafe_allow_html=True,
+        )
+        with st.container(height=510, border=True):
+            if not st.session_state["acneclear_chat_history"] and not st.session_state.get("acneclear_pending_prompt"):
+                st.markdown(
+                    '<div style="padding:24px 12px;text-align:center">'
+                    '<div style="font-size:12px;letter-spacing:2px;font-weight:800;color:#496A91">WELCOME TO ACNECLEAR AI</div>'
+                    '<h3 style="color:#17365D;margin:10px 0 6px 0">What would you like to explore?</h3>'
+                    '<p style="font-size:13px;color:#52657A">Ask a question in your own words, or start with one of the prompts.</p>'
+                    '</div>',
+                    unsafe_allow_html=True,
+                )
+            for item in st.session_state["acneclear_chat_history"]:
+                with st.chat_message(item["role"]):
+                    st.markdown(item["content"])
+
+    pending_prompt = st.session_state.pop("acneclear_pending_prompt", None)
     prompt = pending_prompt or st.chat_input(
-        "Message AcneClear AI...",
-        disabled=not bool(_acneclear_setting("GEMINI_API_KEY")),
+        "Ask AcneClear AI anything...",
+        disabled=not api_ready,
     )
     if prompt:
         previous_history = st.session_state["acneclear_chat_history"][-8:]
         st.session_state["acneclear_chat_history"].append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-        with st.chat_message("assistant"):
-            with st.spinner("AcneClear AI is thinking..."):
-                try:
-                    reply = ask_acneclear_ai(prompt, previous_history)
-                except Exception as exc:
-                    reply = (
-                        "I could not connect to the AcneClear AI model service. "
-                        "Please check that GEMINI_API_KEY is set in Streamlit Secrets and that your Gemini free-tier quota is available. "
-                        f"Technical detail: {type(exc).__name__}: {exc}"
-                    )
-                st.markdown(reply)
+        focus_instruction = (
+            f"Optional response focus: {focus}. Use this only as a style/context hint. "
+            "Always answer the actual question, including questions outside this focus.\\n\\n"
+        )
+        with main_chat:
+            with st.chat_message("user"):
+                st.markdown(prompt)
+            with st.chat_message("assistant"):
+                with st.spinner("Thinking through your question..."):
+                    try:
+                        reply = ask_acneclear_ai(focus_instruction + prompt, previous_history)
+                    except Exception as exc:
+                        reply = (
+                            "I couldn't get a response from the AI service. "
+                            "Check the GEMINI_API_KEY in Streamlit Secrets and the available free-tier quota. "
+                            f"Details: {type(exc).__name__}: {exc}"
+                        )
+                    st.markdown(reply)
         st.session_state["acneclear_chat_history"].append({"role": "assistant", "content": reply})
-
-    if st.session_state["acneclear_chat_history"]:
-        if st.button("Start a new conversation", key="clear_chat_history"):
-            st.session_state["acneclear_chat_history"] = []
-            st.rerun()
 
 st.markdown("---")
 st.markdown('<div class="small-note">ACNECLEAR AI · Educational photo-retouching and wellness demo. Photo restoration is not a dedicated acne-removal model. Skincare and diet information is general education, not medical advice.</div>', unsafe_allow_html=True)
