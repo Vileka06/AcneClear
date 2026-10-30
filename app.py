@@ -53,7 +53,7 @@ st.markdown("""
 }
 .stApp { background:var(--cream); color:var(--ink); font-family:'DM Sans',sans-serif; }
 .block-container { max-width:1320px; padding-top:1.3rem; padding-bottom:3rem; }
-header[data-testid="stHeader"] { background:rgba(243,235,221,.96); }
+header[data-testid="stHeader"] { background:rgba(247,249,252,.98); }
 #MainMenu, footer {visibility:hidden;}
 h1,h2,h3 {font-family:'Manrope',sans-serif !important; color:var(--burgundy) !important;}
 p, label, .stMarkdown { color:var(--ink); }
@@ -100,9 +100,9 @@ hr {border-color:var(--line);}
 .feature-card p {margin:0;color:var(--muted);font-size:12px;line-height:1.5;}
 .response-card {background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:12px 0;color:var(--ink);}
 [data-testid="stChatMessage"] {background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px 15px;margin:10px 0;}
-[data-testid="stChatInput"] {background:#fff;border:1px solid #CFC2B8;border-radius:14px;box-shadow:0 5px 18px rgba(65,42,35,.07);}
+[data-testid="stChatInput"] {background:#fff;border:1px solid #D8E1EC;border-radius:14px;box-shadow:0 5px 18px rgba(65,42,35,.07);}
 [data-testid="stChatInput"] textarea {background:transparent !important;color:#172B4D !important;}
-.stChatFloatingInputContainer {background:rgba(243,235,221,.97) !important;border-top:1px solid var(--line);padding-top:10px;}
+.stChatFloatingInputContainer {background:rgba(247,249,252,.98) !important;border-top:1px solid var(--line);padding-top:10px;}
 div[data-testid="stButton"] button {transition:all .15s ease;}
 div[data-testid="stButton"] button:focus {border-color:var(--burgundy) !important;box-shadow:0 0 0 2px rgba(101,31,50,.12) !important;}
 </style>
@@ -361,15 +361,29 @@ def offline_beauty_starter(skin_type: str, concerns: list, sensitivity: str, que
 Painful, deep, persistent or scarring acne should be assessed by a dermatologist. This routine is general education, not an acne treatment or a guarantee of clear skin.{question_line}"""
 
 
-def offline_diet_starter(preference: str, meal_style: str, meals_per_day: str, foods_to_avoid: str) -> str:
+def offline_diet_starter(
+    preference: str,
+    meal_style: str,
+    meals_per_day: str,
+    foods_to_avoid: str,
+    budget: str,
+    additional_request: str,
+) -> str:
     """Conservative Indian meal ideas for demo mode; not a medical diet."""
-    if foods_to_avoid.strip():
+    avoid_text = foods_to_avoid.strip()
+    allergy_terms = (
+        "allerg", "peanut", "groundnut", "tree nut", "cashew", "almond",
+        "milk allergy", "dairy allergy", "lactose allergy", "gluten allergy",
+        "wheat allergy", "soy allergy", "soya allergy", "sesame allergy",
+        "shellfish", "seafood allergy", "fish allergy", "egg allergy"
+    )
+    if avoid_text and any(term in avoid_text.lower() for term in allergy_terms):
         return (
-            "### Allergy-aware planning needs the AI connection\n"
-            "You listed foods to avoid: **" + foods_to_avoid.strip() + "**.\n\n"
-            "The offline starter menu cannot reliably verify ingredients, hidden allergens or kitchen cross-contact. "
-            "I have not generated a menu so it does not accidentally include something unsafe. "
-            "Connect the AI service for a menu that takes this list into account, and always verify labels and preparation with the food provider."
+            "### Allergy-safe planning needs a verified ingredient check\n"
+            f"You listed: **{avoid_text}**.\n\n"
+            "I have not generated an offline menu because a template cannot verify every ingredient, packaged-food label, "
+            "or kitchen cross-contact risk. Please check every ingredient with the food provider and follow your clinician's allergy plan. "
+            "For a serious or multiple-food allergy, consult a registered dietitian."
         )
 
     vegan = preference == "Vegan"
@@ -380,25 +394,25 @@ def offline_diet_starter(preference: str, meal_style: str, meals_per_day: str, f
 
     if south:
         if vegan:
-            breakfast = "Idli with sambar and coconut chutney (confirm the chutney and sambar contain no dairy)."
-            lunch = "Rice with sambar, vegetable poriyal and a chickpea sundal side."
+            breakfast = "Idli with vegetable sambar and coconut chutney; check that the sambar and chutney contain no ghee or dairy."
+            lunch = "Rice with sambar, vegetable poriyal and chickpea sundal."
             dinner = "Ragi dosa with vegetable sambar and a seasonal vegetable side."
         elif eggs:
             breakfast = "Idli with sambar and one well-cooked boiled egg."
-            lunch = "Rice with sambar, vegetable poriyal and a well-cooked egg curry."
-            dinner = "Dosa with vegetable sambar and a side of dal."
+            lunch = "Rice with sambar, vegetable poriyal and well-cooked egg curry."
+            dinner = "Dosa with sambar and a side of dal."
         elif meat:
-            breakfast = "Idli with sambar and fruit."
+            breakfast = "Idli with sambar and a seasonal fruit."
             lunch = "Rice with vegetable sambar, poriyal and well-cooked fish or chicken."
-            dinner = "Dosa with sambar and a vegetable side; add dal if you prefer a vegetarian dinner."
+            dinner = "Dosa with sambar and a vegetable side."
         else:
             breakfast = "Idli with sambar and coconut chutney."
             lunch = "Rice with sambar, vegetable poriyal and curd if tolerated."
             dinner = "Ragi dosa with sambar and a seasonal vegetable side."
-        snack_options = ["A seasonal fruit", "Roasted chana", "Steamed sundal"]
+        snack_options = ["A seasonal fruit such as banana or guava", "Roasted chana", "Steamed sundal"]
     elif north:
         if vegan:
-            breakfast = "Vegetable poha with lemon and a side of fruit."
+            breakfast = "Vegetable poha with lemon and seasonal fruit."
             lunch = "Chapati with chana masala and seasonal sabzi."
             dinner = "Moong dal khichdi with cucumber salad."
         elif eggs:
@@ -422,9 +436,9 @@ def offline_diet_starter(preference: str, meal_style: str, meals_per_day: str, f
         elif eggs:
             breakfast = "Vegetable upma with one well-cooked egg."
             lunch = "Rice or chapati with dal, seasonal vegetables and egg curry."
-            dinner = "Vegetable khichdi with curd if tolerated."
+            dinner = "Vegetable khichdi with a side of dal."
         elif meat:
-            breakfast = "Vegetable upma with fruit."
+            breakfast = "Vegetable upma with seasonal fruit."
             lunch = "Rice or chapati with dal, vegetables and well-cooked chicken or fish."
             dinner = "Vegetable khichdi with a side of dal."
         else:
@@ -440,19 +454,31 @@ def offline_diet_starter(preference: str, meal_style: str, meals_per_day: str, f
         ("Second snack", snack_options[1]),
         ("Dinner", dinner),
     ]
-    wanted = 3 if meals_per_day == "3 meals" else (4 if meals_per_day == "3 meals + 1 snack" else 5)
-    chosen = [item for item in menu if item[0] != "Second snack"] if wanted == 4 else menu
-    if wanted == 3:
+    if meals_per_day == "3 meals":
         chosen = [menu[0], menu[1], menu[4]]
-    elif wanted == 4:
+    elif meals_per_day == "3 meals + 1 snack":
         chosen = [menu[0], menu[1], menu[2], menu[4]]
-    return "### Sample one-day meal plan\n" + "\n".join(
-        f"**{name}:** {meal}" for name, meal in chosen
-    ) + (
-        "\n\n**Simple planning note:** Adjust portions to your appetite and activity. Include a variety of grains, pulses, vegetables and fruit across the week. "
-        "This is a general example, not a calorie target or medical diet."
-    )
+    else:
+        chosen = menu
 
+    budget_note = (
+        "Choose seasonal vegetables, local fruit, rice, dal and roasted chana to keep costs lower."
+        if "Affordable" in budget else
+        "Rotate pulses, vegetables, grains and protein choices through the week."
+    )
+    output = "### Sample one-day meal plan\n" + "\n".join(
+        f"**{name}:** {meal}" for name, meal in chosen
+    )
+    output += f"\n\n**Budget tip:** {budget_note}"
+    if avoid_text:
+        output += f"\n\n**Foods you asked to avoid:** {avoid_text}. Review ingredient lists and preparation methods before eating."
+    if additional_request.strip():
+        output += f"\n\n**Your extra preference:** {additional_request.strip()}. Adjust the listed options to this preference where possible."
+    output += (
+        "\n\nAdjust portions to your appetite and activity. This is general meal inspiration, "
+        "not a calorie target, medical diet, or acne treatment."
+    )
+    return output
 
 # Sidebar navigation
 with st.sidebar:
@@ -687,7 +713,7 @@ elif page == "Diet Planner":
                     st.session_state["acneclear_diet_mode"] = "AI-generated"
                 else:
                     st.session_state["acneclear_diet_response"] = offline_diet_starter(
-                        preference, meal_style, meals_per_day, allergies
+                        preference, meal_style, meals_per_day, allergies, budget, diet_question
                     )
                     st.session_state["acneclear_diet_mode"] = "Offline starter"
             except Exception:
