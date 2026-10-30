@@ -18,6 +18,9 @@ WEIGHTS_DIR.mkdir(exist_ok=True)
 WEIGHT_PATH = WEIGHTS_DIR / "GFPGANv1.3.pth"
 WEIGHT_URL = "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth"
 
+_GFPGAN_RESTORER = None
+_ACNECLEAR_CHAT_CLIENT = None
+
 # Streamlit cache decorators are intentionally avoided here because source inspection
 # fails on this deployed script; the model/client are created only when first requested.
 
@@ -103,6 +106,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def load_restorer():
+    global _GFPGAN_RESTORER
+    if _GFPGAN_RESTORER is not None:
+        return _GFPGAN_RESTORER
+
     # Compatibility shim for BasicSR releases that import the removed
     # torchvision.transforms.functional_tensor module.
     import sys
@@ -113,13 +120,14 @@ def load_restorer():
     if not WEIGHT_PATH.exists():
         with st.spinner("Downloading the official GFPGAN v1.3 model (first run only)…"):
             urllib.request.urlretrieve(WEIGHT_URL, WEIGHT_PATH)
-    return GFPGANer(
+    _GFPGAN_RESTORER = GFPGANer(
         model_path=str(WEIGHT_PATH),
         upscale=2,
         arch="clean",
         channel_multiplier=2,
         bg_upsampler=None,
     )
+    return _GFPGAN_RESTORER
 
 def skin_retouch(image_rgb: np.ndarray, strength: int = 35) -> np.ndarray:
     """A light, conservative smoothing pass; not a dedicated acne-removal model."""
@@ -175,6 +183,10 @@ def _acneclear_setting(name: str) -> str:
 
 def get_acneclear_chat_client():
     """Connect to the dedicated Hugging Face Gradio Space hosting the fine-tuned LLM."""
+    global _ACNECLEAR_CHAT_CLIENT
+    if _ACNECLEAR_CHAT_CLIENT is not None:
+        return _ACNECLEAR_CHAT_CLIENT
+
     space_id = _acneclear_setting("ACNECLEAR_CHAT_SPACE")
     if not space_id:
         raise RuntimeError(
@@ -184,9 +196,10 @@ def get_acneclear_chat_client():
     from gradio_client import Client
     token = _acneclear_setting("ACNECLEAR_CHAT_TOKEN")
     if token:
-        return Client(space_id, token=token, verbose=False)
-    return Client(space_id, verbose=False)
-
+        _ACNECLEAR_CHAT_CLIENT = Client(space_id, token=token, verbose=False)
+    else:
+        _ACNECLEAR_CHAT_CLIENT = Client(space_id, verbose=False)
+    return _ACNECLEAR_CHAT_CLIENT
 
 def ask_acneclear_ai(prompt: str, history=None) -> str:
     """Send a message and the recent chat history to the fine-tuned AcneClear LLM."""
