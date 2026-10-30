@@ -1,6 +1,7 @@
 import base64
 import io
 import os
+import requests
 import urllib.request
 from pathlib import Path
 
@@ -201,35 +202,120 @@ def _acneclear_setting(name: str) -> str:
     return str(value or os.getenv(name, "")).strip()
 
 
-def get_acneclear_chat_client():
-    """Connect to the dedicated Hugging Face Gradio Space hosting the fine-tuned LLM."""
-    global _ACNECLEAR_CHAT_CLIENT
-    if _ACNECLEAR_CHAT_CLIENT is not None:
-        return _ACNECLEAR_CHAT_CLIENT
+GEMINI_MODEL = "gemini-3.5-flash-lite"
 
-    space_id = _acneclear_setting("ACNECLEAR_CHAT_SPACE")
-    if not space_id:
-        raise RuntimeError(
-            "The AI service is not connected yet. Add ACNECLEAR_CHAT_SPACE to "
-            "Streamlit Community Cloud → Settings → Secrets after deploying the Hugging Face Space."
-        )
-    from gradio_client import Client
-    token = _acneclear_setting("ACNECLEAR_CHAT_TOKEN")
-    if token:
-        _ACNECLEAR_CHAT_CLIENT = Client(space_id, token=token, verbose=False)
-    else:
-        _ACNECLEAR_CHAT_CLIENT = Client(space_id, verbose=False)
-    return _ACNECLEAR_CHAT_CLIENT
+ACNECLEAR_SYSTEM_PROMPT = """
+You are AcneClear AI, a friendly general-purpose assistant and guide to the AcneClear AI student project.
+Answer the user's actual question directly in simple, clear language. You may answer general questions about
+education, coding, maths, science, writing and everyday topics.
+
+VERIFIED ACNECLEAR PROJECT FACTS:
+- AcneClear AI is a Streamlit website with four sections: Acne Remover, Beauty Tips, Diet Planner and AI Chatbot.
+- Acne Remover: accepts JPG/PNG/WEBP portraits and uses pretrained TencentARC GFPGAN v1.3 (clean architecture,
+  channel multiplier 2, upscale 2, restoration weight 0.6), followed by OpenCV bilateral smoothing and a YCrCb
+  blending mask. It shows a before/after comparison and PNG download. GFPGAN is a general face-restoration model,
+  NOT an acne-specific detector or medical acne remover. It was integrated as a pretrained model, not trained
+  from scratch for this project.
+- Beauty Tips: takes skin type, concerns and sensitivity, then generates general educational routine suggestions.
+  It does not diagnose or prescribe.
+- Diet Planner: takes food preferences, Indian meal style, budget, meals and foods to avoid, then generates
+  general meal ideas. It is not a medical diet and does not claim food cures acne.
+- LLM experiment: Qwen/Qwen3-0.6B, a pretrained decoder-only language model with 28 Transformer blocks,
+  hidden size 1024, 16 attention heads, 8 key/value heads and intermediate size 3072.
+- The Qwen3 experiment was fine-tuned separately with supervised fine-tuning and PEFT LoRA: rank 8,
+  alpha 16, dropout 0.05. Target projections were q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj and down_proj.
+  The saved adapter has 5,046,272 trainable parameters; the base model weights were frozen.
+- The completed Colab experiment recorded 3 epochs, 62.47 minutes, 2,757 prepared examples, 2,205 train,
+  276 validation and 276 test. Recorded test loss 0.7037, perplexity 2.0212, sampled response-token accuracy
+  78.28% on 64 test examples, and final validation loss 0.7175. These are language-model diagnostics, not
+  clinical accuracy or a guarantee that answers are factually correct.
+- IMPORTANT DEPLOYMENT DISTINCTION: because the free Streamlit deployment cannot reliably host the trained
+  Qwen adapter as an online inference server without another compute service, this no-cost website chatbot
+  uses the Gemini Developer API free tier. The Qwen3 LoRA adapter remains the user's separate completed
+  fine-tuning experiment; do not claim that Gemini is the fine-tuned Qwen model.
+- The live Gemini model selected for the website is gemini-3.5-flash-lite. This assistant has no live web search
+  unless a separate search service is added.
+
+SAFETY:
+For acne and skincare, give general education only. Do not diagnose, prescribe medicines, suggest changing
+prescribed treatment or promise a cure. For deep, painful, persistent or scarring acne, recommend a dermatologist.
+For food allergies, pregnancy, medical conditions or medicine-related dietary questions, recommend a qualified
+clinician or registered dietitian. Do not invent nutrition values or create crash diets. If uncertain, say so.
+"""
 
 def ask_acneclear_ai(prompt: str, history=None) -> str:
-    """Send a message and the recent chat history to the fine-tuned AcneClear LLM."""
-    client = get_acneclear_chat_client()
-    result = client.predict(prompt, history or [], api_name="/chat")
-    if isinstance(result, (list, tuple)):
-        result = result[0] if result else ""
-    if isinstance(result, dict):
-        result = result.get("answer", result.get("output", ""))
-    return str(result).strip() or "I could not generate a useful answer. Please rephrase your question."
+    """Call Gemini's free-tier API from the Streamlit server; the key never reaches the browser."""
+    api_key = _acneclear_setting("GEMINI_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "Add a free Gemini API key as GEMINI_API_KEY in Streamlit Community Cloud → App settings → Secrets. "
+            "Create a key at https://aistudio.google.com/apikey. Do not enable paid billing."
+        )
+
+    contents = []
+    for item in (history or [])[-8:]:
+        if not isinstance(item, dict):
+            continue
+        role = item.get("role")
+        text = item.get("content")
+        if role in ("user", "assistant") and isinstance(text, str) and text.strip():
+            contents.append({
+                "role": "user" if role == "user" else "model",
+                "parts": [{"text": text[:1800]}],
+            })
+
+    contents.append({
+        "role": "user",
+        "parts": [{"text": str(prompt).strip()[:4000]}],
+    })
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+    payload = {
+        "systemInstruction": {"parts": [{"text": ACNECLEAR_SYSTEM_PROMPT}]},
+        "contents": contents,
+        "generationConfig": {"maxOutputTokens": 750},
+    }
+
+    try:
+        response = requests.post(
+            url,
+            headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
+            json=payload,
+            timeout=(10, 60),
+        )
+    except requests.Timeout as exc:
+        raise RuntimeError("The free AI service timed out. Please try again.") from exc
+    except requests.RequestException as exc:
+        raise RuntimeError("Could not reach the AI service. Check the internet connection and try again.") from exc
+
+    if response.status_code == 429:
+        raise RuntimeError(
+            "The Gemini free-tier quota or rate limit has been reached. Wait for the quota to reset, "
+            "or check the limits in Google AI Studio. No paid billing is required for this setup."
+        )
+    if response.status_code == 403:
+        raise RuntimeError(
+            "Google AI Studio did not allow this request. Check that the API key is valid and that the project "
+            "is eligible for Gemini's free tier. Do not enable billing if you want to keep this project free."
+        )
+    if response.status_code >= 400:
+        try:
+            detail = response.json().get("error", {}).get("message", "Unknown API error")
+        except (ValueError, AttributeError):
+            detail = response.text[:300]
+        raise RuntimeError(f"Gemini API error ({response.status_code}): {detail}")
+
+    try:
+        data = response.json()
+        parts = data["candidates"][0]["content"]["parts"]
+        answer = "\n".join(part.get("text", "") for part in parts if part.get("text"))
+    except (ValueError, KeyError, IndexError, TypeError) as exc:
+        raise RuntimeError("The AI service returned an empty or unexpected response. Please rephrase your question.") from exc
+
+    answer = answer.strip()
+    if not answer:
+        raise RuntimeError("The AI service did not return text. Please rephrase your question.")
+    return answer
 
 
 # Sidebar navigation
@@ -309,7 +395,7 @@ elif page == "Beauty Tips":
     st.markdown(
         '<div class="eyebrow">THE DAILY SKIN EDIT</div>'
         '<h1 class="hero-title">Skincare guidance that starts with you.</h1>'
-        '<p class="hero-copy">Tell AcneClear AI a little about your skin and ask a skincare question. The fine-tuned LLM will create an educational routine suggestion.</p>',
+        '<p class="hero-copy">Tell AcneClear AI a little about your skin and ask a skincare question. The AI assistant will create an educational routine suggestion.</p>',
         unsafe_allow_html=True,
     )
     st.image(
@@ -371,7 +457,7 @@ elif page == "Diet Planner":
     st.markdown(
         '<div class="eyebrow">THE EVERYDAY FOOD GUIDE</div>'
         '<h1 class="hero-title">Meal ideas made around your preferences.</h1>'
-        '<p class="hero-copy">Choose your food preference and ask the fine-tuned AcneClear LLM for balanced, practical Indian meal ideas.</p>',
+        '<p class="hero-copy">Choose your food preference and ask the AcneClear AI assistant for balanced, practical Indian meal ideas.</p>',
         unsafe_allow_html=True,
     )
     st.image(
@@ -499,7 +585,7 @@ elif page == "AI Chatbot":
                 except Exception as exc:
                     reply = (
                         "I could not connect to the AcneClear AI model service. "
-                        "Please check that your Hugging Face Space is running and that ACNECLEAR_CHAT_SPACE is set in Streamlit Secrets. "
+                        "Please check that GEMINI_API_KEY is set in Streamlit Secrets and that your Gemini free-tier quota is available. "
                         f"Technical detail: {type(exc).__name__}: {exc}"
                     )
                 st.markdown(reply)
