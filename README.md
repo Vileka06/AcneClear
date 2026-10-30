@@ -13,7 +13,7 @@
 
 ## Project overview
 
-**AcneClear AI** is a student project that brings together a simple portrait-retouching workflow and educational skin-wellness content in one web application. The interface uses a cream, sage-grey, and burgundy colour palette.
+**AcneClear AI** is a student project that brings together a simple portrait-retouching workflow and educational skin-wellness content in one web application. The interface uses a clean white, blue-grey, and navy colour palette.
 
 ## Features
 
