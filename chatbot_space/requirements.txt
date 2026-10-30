@@ -1,8 +1,7 @@
-gradio>=5.20,<6.0
-transformers>=4.51.3,<5
-peft>=0.15.2,<1
-accelerate>=1.6.0,<2
-torch>=2.5,<3
+gradio==5.29.0
+transformers==4.51.3
+peft==0.15.2
+accelerate==1.6.0
 safetensors>=0.5.3
 sentencepiece>=0.2.0
 huggingface_hub>=0.30.0
