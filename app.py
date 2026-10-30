@@ -536,11 +536,14 @@ elif page == "AI Chatbot":
         unsafe_allow_html=True,
     )
 
-    if not _acneclear_setting("ACNECLEAR_CHAT_SPACE"):
+    if not _acneclear_setting("GEMINI_API_KEY"):
         st.warning(
-            "Your chatbot model is not connected yet. Upload the trained adapter, deploy the chatbot_space folder as a Hugging Face Gradio Space, "
-            "then add ACNECLEAR_CHAT_SPACE in Streamlit Secrets. Follow CHATBOT_DEPLOYMENT.md in GitHub."
+            "Connect the free AI service by adding GEMINI_API_KEY in Streamlit Community Cloud → App settings → Secrets. "
+            "Create a key at https://aistudio.google.com/apikey. Do not enable paid billing."
         )
+    st.caption(
+        "Live chatbot engine: Gemini 3.5 Flash-Lite (free API tier). Your trained Qwen3-LoRA adapter remains a separate Colab training experiment."
+    )
 
     pending_prompt = st.session_state.pop("acneclear_pending_prompt", None)
 
