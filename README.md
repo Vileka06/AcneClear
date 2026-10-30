@@ -118,3 +118,17 @@ AcneClear/
 
 - [TencentARC GFPGAN](https://github.com/TencentARC/GFPGAN) for pretrained face-restoration technology.
 - [Streamlit](https://streamlit.io/) for the web app framework.
+
+## 4. Fine-tuned LLM assistant
+
+The Beauty Tips and Diet Planner sections now use the trained Qwen3-0.6B LoRA adapter through a separate Hugging Face Gradio Space. A general-purpose **AI Chatbot** section is also available.
+
+- **Base LLM:** Qwen/Qwen3-0.6B
+- **Fine-tuning:** Supervised fine-tuning with LoRA
+- **Website features:** general chatbot, personalized educational skincare guidance, and meal ideas
+- **Inference:** Hugging Face Space; Streamlit sends prompts through the Gradio API
+- **GFPGAN:** the existing photo-restoration implementation remains separate and unchanged
+
+See [CHATBOT_DEPLOYMENT.md](CHATBOT_DEPLOYMENT.md) for adapter upload, Space setup, and Streamlit Secrets configuration.
+
+The chatbot does not have live web access. Skincare responses are educational, not diagnosis or treatment. Meal suggestions are not medical diets. The fine-tuning test metrics are language-model diagnostics, not medical correctness scores.
