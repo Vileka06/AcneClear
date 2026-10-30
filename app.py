@@ -18,6 +18,9 @@ WEIGHTS_DIR.mkdir(exist_ok=True)
 WEIGHT_PATH = WEIGHTS_DIR / "GFPGANv1.3.pth"
 WEIGHT_URL = "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth"
 
+# Streamlit cache decorators are intentionally avoided here because source inspection
+# fails on this deployed script; the model/client are created only when first requested.
+
 st.set_page_config(
     page_title="AcneClear AI | Skin Wellness Studio",
     page_icon="✳",
@@ -99,7 +102,6 @@ st.markdown("""
 <p class="hero-copy">Retouch a portrait, explore gentle skincare habits, plan balanced meals, and track your routine in one simple workspace.</p>
 """, unsafe_allow_html=True)
 
-@st.cache_resource(show_spinner=False)
 def load_restorer():
     # Compatibility shim for BasicSR releases that import the removed
     # torchvision.transforms.functional_tensor module.
@@ -171,7 +173,6 @@ def _acneclear_setting(name: str) -> str:
     return str(value or os.getenv(name, "")).strip()
 
 
-@st.cache_resource(show_spinner=False)
 def get_acneclear_chat_client():
     """Connect to the dedicated Hugging Face Gradio Space hosting the fine-tuned LLM."""
     space_id = _acneclear_setting("ACNECLEAR_CHAT_SPACE")
