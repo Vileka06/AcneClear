@@ -77,6 +77,9 @@ div[data-baseweb="tab-list"] {gap:8px;}
 button[data-baseweb="tab"] {background:#E7EAE5;border-radius:8px 8px 0 0;color:var(--burgundy);padding:10px 16px;}
 button[data-baseweb="tab"][aria-selected="true"] {background:var(--burgundy);color:#fff;}
 .stSlider [data-baseweb="slider"] div {background:var(--burgundy);}
+[data-testid="stChatInput"] textarea {background:#fff !important;color:#342B2B !important;}
+[data-testid="stChatInput"] textarea::placeholder {color:#756B68 !important;opacity:1 !important;}
+[data-testid="stChatInput"] button {color:#651F32 !important;}
 .small-note {color:var(--muted);font-size:11px;line-height:1.6;}
 hr {border-color:var(--line);}
 </style>
@@ -190,6 +193,8 @@ def ask_acneclear_ai(prompt: str, history=None) -> str:
     result = client.predict(prompt, history or [], api_name="/chat")
     if isinstance(result, (list, tuple)):
         result = result[0] if result else ""
+    if isinstance(result, dict):
+        result = result.get("answer", result.get("output", ""))
     return str(result).strip() or "I could not generate a useful answer. Please rephrase your question."
 
 
@@ -405,8 +410,19 @@ elif page == "AI Chatbot":
         unsafe_allow_html=True,
     )
     st.caption(
-        "Powered by your fine-tuned Qwen3-0.6B model. It does not have live web access and is not a medical professional."
+        "One assistant for your entire AcneClear project and everyday questions. "
+        "Ask about GFPGAN, Qwen3, LoRA, datasets, epochs, metrics, skincare, meals, coding, or general knowledge."
     )
+    st.markdown(
+        "**Try asking:** Explain my project architecture · What is the difference between GFPGAN and Qwen3? · "
+        "How many epochs did I train? · What does LoRA do?"
+    )
+    if not _acneclear_setting("ACNECLEAR_CHAT_SPACE"):
+        st.warning(
+            "The chatbot backend is not connected yet. Upload your saved LoRA adapter to Hugging Face, "
+            "deploy the chatbot_space folder as a Gradio Space, then add ACNECLEAR_CHAT_SPACE in Streamlit Secrets. "
+            "Follow CHATBOT_DEPLOYMENT.md in the GitHub repository."
+        )
     for item in st.session_state["acneclear_chat_history"]:
         with st.chat_message(item["role"]):
             st.markdown(item["content"])
