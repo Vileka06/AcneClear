@@ -1,89 +1,77 @@
-# Connect your trained LLM to AcneClear AI
+# Connect the AcneClear AI chatbot using a free API tier
 
-The Streamlit website code is already committed. The chatbot will not answer until the fine-tuned adapter is uploaded to Hugging Face and the Space is deployed.
+This setup does not require paid GPU hosting, Hugging Face Spaces, Modal, or uploading the Qwen LoRA adapter.
 
-## A. Upload your completed adapter from Google Drive
+The live Streamlit chatbot, Beauty Tips and Diet Planner use Google's Gemini API Free Tier. Your Qwen3-0.6B LoRA adapter remains a separate trained Colab experiment.
 
-Open your completed Colab notebook. It already mounted Google Drive. Add a new cell and run:
+## 1. Create a free API key
 
-\`\`\`python
-!pip -q install -U huggingface_hub
+1. Open https://aistudio.google.com/apikey
+2. Sign in with your Google account.
+3. Create an API key.
+4. Keep the key private.
+5. Do not enable paid billing or connect a paid billing account.
 
-from huggingface_hub import notebook_login, HfApi
-from pathlib import Path
+The app calls the stable model ID `gemini-3.5-flash-lite`. Google currently lists free input and output tokens for this model on the Gemini API Free Tier. Free access is limited by account/project eligibility, model availability and rate limits. Check current quotas in Google AI Studio.
 
-notebook_login()  # paste a Hugging Face WRITE token in the login prompt
+Official references:
+- Pricing: https://ai.google.dev/gemini-api/docs/pricing
+- Model: https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite
+- Rate limits: https://ai.google.dev/gemini-api/docs/rate-limits
+- Create API key: https://aistudio.google.com/apikey
 
-adapter_dir = Path(
-    "/content/drive/MyDrive/AcneClear_AI/Qwen3_LoRA_Training/qwen3_0_6b_lora_adapter"
-)
-assert (adapter_dir / "adapter_config.json").exists(), "Missing adapter_config.json"
-assert any(adapter_dir.glob("adapter_model.*")), "Missing adapter_model weights"
+**Privacy note:** Google lists free-tier content as potentially used to improve its products. Do not send private photos, passwords, sensitive medical history, or other confidential information to the chatbot.
 
-repo_id = "YOUR_HF_USERNAME/acneclear-qwen3-lora"
-api = HfApi()
-api.create_repo(repo_id=repo_id, repo_type="model", private=True, exist_ok=True)
-api.upload_folder(
-    folder_path=str(adapter_dir),
-    repo_id=repo_id,
-    repo_type="model",
-    commit_message="Upload completed AcneClear Qwen3 LoRA adapter",
-)
-print("Adapter uploaded:", repo_id)
-\`\`\`
+## 2. Add the API key to Streamlit Community Cloud
 
-Replace \`YOUR_HF_USERNAME\` with your Hugging Face username. The token needs **write** permission for this upload. Do not paste the token into GitHub, app.py, or chat.
+1. Open https://share.streamlit.io/
+2. Select the AcneClear app.
+3. Open the app menu and choose **Settings**.
+4. Open **Secrets**.
+5. Paste:
 
-## B. Create the Hugging Face Space
+```toml
+GEMINI_API_KEY = "paste-your-google-ai-studio-key-here"
+```
 
-1. Go to Hugging Face → Spaces → Create new Space.
-2. Choose Gradio SDK. A public Space is easiest for Streamlit to call; keep the model adapter repository private if you prefer.
-3. Name it, for example, \`acneclear-ai-assistant\`.
-4. Open the GitHub repository folder \`chatbot_space/\` and upload its three files into the **root** of the new Space:
-   - \`app.py\`
-   - \`requirements.txt\`
-   - \`README.md\`
-5. In Space **Settings → Variables and secrets**, add:
-   - Variable \`HF_ADAPTER_REPO\` = \`YOUR_HF_USERNAME/acneclear-qwen3-lora\`
-   - Secret \`HF_TOKEN\` = a Hugging Face **read** token with access to that private model repository.
-6. Wait until the Space says **Running**. On first startup, it downloads Qwen3-0.6B and your adapter. Free CPU inference can be slow; if memory is insufficient, use a supported GPU Space or a smaller quantized serving setup.
+6. Save the secrets. Streamlit will restart the application.
 
-The Space exposes \`/chat\` with two API inputs: message and conversation history.
+Do not put the key in app.py, GitHub, a screenshot, or a public file. The app sends API requests from the server; the key is not sent to the browser. Streamlit's official secrets documentation: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management
 
-## C. Connect Streamlit Community Cloud
+## 3. Test the live application
 
-Open the Streamlit Community Cloud app settings → **Secrets** and add:
+Open https://acneclear.streamlit.app/ and test each module:
 
-\`\`\`toml
-ACNECLEAR_CHAT_SPACE = "YOUR_HF_USERNAME/acneclear-ai-assistant"
-\`\`\`
+### AI Chatbot
+- "Explain my complete AcneClear AI project architecture."
+- "What is the difference between GFPGAN and Qwen3?"
+- "Explain LoRA and my three training epochs."
+- "What were my test loss and perplexity?"
+- "Explain Python functions with an example."
 
-For a public Space, no additional Space token is needed. For a private Space, add:
+### Beauty Tips
+Select a skin type and concern. Ask for a simple morning and evening skincare routine.
 
-\`\`\`toml
-ACNECLEAR_CHAT_TOKEN = "hf_your_read_token"
-\`\`\`
+### Diet Planner
+Choose food preference, meal style and budget. Ask for general Indian meal ideas.
 
-Save the secrets. Streamlit will restart. The Diet Planner, Beauty Tips and AI Chatbot all use this same endpoint/model.
+### Acne Remover
+Upload a test portrait and confirm the existing GFPGAN flow still works.
 
-## D. Test the unified chatbot
+## 4. How to explain the model choice to faculty
 
-Open https://acneclear.streamlit.app/ and choose **AI Chatbot**. Try:
+"I fine-tuned Qwen3-0.6B using LoRA in Google Colab. To keep the live website available without paying for dedicated GPU hosting, I connected the chatbot, Beauty Tips and Diet Planner to Gemini's free API tier. The Qwen3 LoRA adapter is retained as my separate fine-tuning experiment; the deployed chatbot currently uses Gemini."
 
-1. "Explain all four modules of my AcneClear AI project."
-2. "What is the difference between GFPGAN and Qwen3?"
-3. "How many Transformer blocks does my LLM have?"
-4. "Explain my training dataset and results."
-5. "Explain Python functions with an example."
+Do not say the live site is running Qwen3 LoRA. It is not in this free setup.
 
-Also test Beauty Tips and Diet Planner. Both should generate their answers using the same LLM.
+## 5. Troubleshooting
 
-## Why your screenshots did not show answers
+- **Chatbot says API key is missing:** Check that the secret is named exactly `GEMINI_API_KEY`.
+- **403 error:** Check that the API key is valid and the Google AI Studio project is eligible for the free tier. Do not enable billing if you want zero cost.
+- **429 error:** The free-tier rate limit has been reached. Wait for the limit to reset and check Google AI Studio quotas.
+- **API model not found:** Verify that `gemini-3.5-flash-lite` remains available to your project in AI Studio.
+- **App does not rebuild:** Check Streamlit Community Cloud logs.
 
-The Diet Planner screenshot shows this exact error: \`ACNECLEAR_CHAT_SPACE\` is missing from Streamlit Secrets. The chatbot screenshot shows an empty conversation; no answer can be generated until the Space is deployed and connected. The adapter was saved in Google Drive but the notebook's Hub upload cell was skipped.
+## 6. GFPGAN remains separate
 
-## Project facts embedded in the chatbot
-
-The Space system context includes the verified project structure and notebook results: GFPGAN v1.3 image restoration; OpenCV smoothing; Qwen3-0.6B with 28 Transformer blocks; LoRA rank 8, alpha 16, dropout 0.05; 5,046,272 trainable adapter parameters; 2,757 prepared examples (190 acne, 1,369 skincare/ingredient, 1,198 Indian recipes); 3 epochs; 62.47 minutes; test loss 0.7037; perplexity 2.0212; sampled response-token accuracy 78.28% on 64 examples; final validation loss 0.7175. Accuracy/loss/perplexity are language-model diagnostics, not medical or answer-quality guarantees.
-
-The unified chatbot can answer general questions using Qwen's base-model capabilities, but it has no live web access. For current facts it should say that it cannot browse. Skincare advice is educational, not diagnosis or treatment; diet ideas are not medical nutrition prescriptions.
+The existing GFPGAN v1.3 photo-restoration code and OpenCV skin-retouching functions are kept unchanged. The Gemini API handles text only; it does not replace the photo-restoration model.
