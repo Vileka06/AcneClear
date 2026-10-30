@@ -718,7 +718,7 @@ elif page == "Diet Planner":
                     st.session_state["acneclear_diet_mode"] = "Offline starter"
             except Exception:
                 st.session_state["acneclear_diet_response"] = offline_diet_starter(
-                    preference, meal_style, meals_per_day, allergies
+                    preference, meal_style, meals_per_day, allergies, budget, diet_question
                 )
                 st.session_state["acneclear_diet_mode"] = "Offline starter"
 
