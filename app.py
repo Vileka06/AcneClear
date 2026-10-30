@@ -1,5 +1,6 @@
 import base64
 import io
+import os
 import urllib.request
 from pathlib import Path
 
@@ -28,6 +29,9 @@ st.set_page_config(
 for key, value in {
     "acneclear_original": None,
     "acneclear_result": None,
+    "acneclear_chat_history": [],
+    "acneclear_beauty_response": None,
+    "acneclear_diet_response": None,
 }.items():
     if key not in st.session_state:
         st.session_state[key] = value
@@ -154,12 +158,47 @@ input{{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resi
     import streamlit.components.v1 as components
     components.html(html, height=height + 12, scrolling=False)
 
+
+def _acneclear_setting(name: str) -> str:
+    """Read a setting from Streamlit secrets first, then environment variables."""
+    try:
+        value = st.secrets.get(name, "")
+    except Exception:
+        value = ""
+    return str(value or os.getenv(name, "")).strip()
+
+
+@st.cache_resource(show_spinner=False)
+def get_acneclear_chat_client():
+    """Connect to the dedicated Hugging Face Gradio Space hosting the fine-tuned LLM."""
+    space_id = _acneclear_setting("ACNECLEAR_CHAT_SPACE")
+    if not space_id:
+        raise RuntimeError(
+            "The AI service is not connected yet. Add ACNECLEAR_CHAT_SPACE to "
+            "Streamlit Community Cloud → Settings → Secrets after deploying the Hugging Face Space."
+        )
+    from gradio_client import Client
+    token = _acneclear_setting("ACNECLEAR_CHAT_TOKEN")
+    if token:
+        return Client(space_id, token=token, verbose=False)
+    return Client(space_id, verbose=False)
+
+
+def ask_acneclear_ai(prompt: str, history=None) -> str:
+    """Send a message and the recent chat history to the fine-tuned AcneClear LLM."""
+    client = get_acneclear_chat_client()
+    result = client.predict(prompt, history or [], api_name="/chat")
+    if isinstance(result, (list, tuple)):
+        result = result[0] if result else ""
+    return str(result).strip() or "I could not generate a useful answer. Please rephrase your question."
+
+
 # Sidebar navigation
 with st.sidebar:
     st.markdown("## AcneClear AI")
     page = st.radio(
         "Choose a section",
-        ["Acne Remover", "Beauty Tips", "Diet Planner"],
+        ["Acne Remover", "Beauty Tips", "Diet Planner", "AI Chatbot"],
         label_visibility="visible",
     )
     st.markdown("---")
@@ -228,52 +267,172 @@ if page == "Acne Remover":
         st.download_button("Download retouched photo (PNG)", out.getvalue(), "acneclear_retouched.png", "image/png", use_container_width=True)
 
 elif page == "Beauty Tips":
-    st.markdown('<div class="eyebrow">THE DAILY SKIN EDIT</div><h1 class="hero-title">Small habits.<br>Gentler skin care.</h1><p class="hero-copy">A practical routine for acne-prone skin, with simple steps you can build into your day. Keep it gentle and introduce new products one at a time.</p>', unsafe_allow_html=True)
-    st.image("https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1600&q=85", caption="A simple, gentle skincare routine", use_container_width=True)
-    st.markdown('<div class="pill">MORNING TO EVENING</div>', unsafe_allow_html=True)
-    morning, evening = st.columns(2, gap="large")
-    with morning:
-        st.markdown('<div class="panel"><div class="panel-title">Morning routine</div><div class="panel-sub">A simple routine to protect your skin during the day.</div></div>', unsafe_allow_html=True)
-        for item in ["Use a gentle cleanser or rinse with lukewarm water.", "Apply a non-comedogenic moisturizer.", "Use broad-spectrum SPF 30+ sunscreen.", "Avoid scrubbing or picking blemishes."]:
-            st.markdown(f"- {item}")
-    with evening:
-        st.markdown('<div class="panel"><div class="panel-title">Evening routine</div><div class="panel-sub">Remove the day gently and support your skin barrier.</div></div>', unsafe_allow_html=True)
-        for item in ["Remove makeup and sunscreen gently.", "Cleanse without harsh scrubbing.", "Moisturize with a product that suits your skin.", "Wash pillowcases regularly and clean phone screens."]:
-            st.markdown(f"- {item}")
-    st.info("Persistent, painful, scarring, or distressing acne is worth discussing with a dermatologist. These tips are general education, not a diagnosis.")
+    st.markdown(
+        '<div class="eyebrow">THE DAILY SKIN EDIT</div>'
+        '<h1 class="hero-title">Skincare guidance that starts with you.</h1>'
+        '<p class="hero-copy">Tell AcneClear AI a little about your skin and ask a skincare question. The fine-tuned LLM will create an educational routine suggestion.</p>',
+        unsafe_allow_html=True,
+    )
+    st.image(
+        "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1600&q=85",
+        caption="A simple, gentle skincare routine",
+        use_container_width=True,
+    )
+    left, right = st.columns(2, gap="large")
+    with left:
+        skin_type = st.selectbox(
+            "Skin type",
+            ["Oily", "Dry", "Combination", "Normal", "Sensitive", "Not sure"],
+            key="beauty_skin_type",
+        )
+        concerns = st.multiselect(
+            "Main concerns",
+            ["Acne-prone skin", "Dryness", "Oiliness", "Uneven tone", "Sensitivity", "Blackheads", "General routine"],
+            default=["Acne-prone skin"],
+            key="beauty_concerns",
+        )
+    with right:
+        sensitivity = st.selectbox(
+            "Skin sensitivity",
+            ["Sensitive / easily irritated", "Not especially sensitive", "Not sure"],
+            key="beauty_sensitivity",
+        )
+        extra_question = st.text_area(
+            "Ask a beauty or skincare question",
+            placeholder="Example: Can I use moisturizer if my skin is oily?",
+            height=110,
+            key="beauty_question",
+        )
+    if st.button("Generate my skincare guidance", type="primary", use_container_width=True):
+        concern_text = ", ".join(concerns) if concerns else "General skincare"
+        prompt = (
+            "[BEAUTY TOPIC]\n"
+            f"My skin type is {skin_type}. My concerns are {concern_text}. "
+            f"My sensitivity level is {sensitivity}. "
+            f"Please give me a simple, gentle morning and evening skincare routine. "
+            f"Also answer this question if provided: {extra_question or 'No additional question.'} "
+            "Use simple steps. Do not diagnose, prescribe medicines, promise acne removal, or recommend many products."
+        )
+        with st.spinner("AcneClear AI is preparing your skincare guidance..."):
+            try:
+                st.session_state["acneclear_beauty_response"] = ask_acneclear_ai(prompt)
+            except Exception as exc:
+                st.error(f"Could not reach the AI service: {type(exc).__name__}: {exc}")
+    if st.session_state.get("acneclear_beauty_response"):
+        st.markdown("### Your AI-generated skincare guidance")
+        st.markdown(st.session_state["acneclear_beauty_response"])
+    st.info(
+        "This is general skincare education, not a diagnosis or treatment plan. "
+        "For painful, persistent, worsening, or scarring acne, consult a dermatologist."
+    )
 
 elif page == "Diet Planner":
-    st.markdown('<div class="eyebrow">THE EVERYDAY FOOD GUIDE</div><h1 class="hero-title">Eat well.<br>Keep it balanced.</h1><p class="hero-copy">Explore practical meal ideas built around variety, nourishment, and foods you enjoy. No single meal or diet guarantees clear skin.</p>', unsafe_allow_html=True)
-    st.image("https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1600&q=85", caption="A colourful, balanced plate", use_container_width=True)
-    preference = st.selectbox("Choose a meal preference", ["Vegetarian", "Includes eggs", "Includes meat or fish"])
-    if preference == "Vegetarian":
-        meals = [
-            ("Breakfast", "Oats with nuts and fruit, or idli with sambar."),
-            ("Lunch", "Rice or millet, dal, vegetables, and curd if tolerated."),
-            ("Snack", "A fruit with a small handful of nuts."),
-            ("Dinner", "Chapati with beans, paneer or tofu, and vegetables."),
-        ]
-    elif preference == "Includes eggs":
-        meals = [
-            ("Breakfast", "Eggs with whole-grain toast and fruit, or oats with nuts."),
-            ("Lunch", "Rice or millet, dal, vegetables, and boiled egg."),
-            ("Snack", "Fruit and unsweetened yogurt if tolerated."),
-            ("Dinner", "Chapati with egg curry or beans and vegetables."),
-        ]
-    else:
-        meals = [
-            ("Breakfast", "Oats with nuts and fruit, or eggs with whole-grain toast."),
-            ("Lunch", "Rice or millet, vegetables, dal, and fish or chicken."),
-            ("Snack", "Fruit and a small handful of nuts."),
-            ("Dinner", "Chapati with fish, chicken, beans, or lentils and vegetables."),
-        ]
-    for meal, suggestion in meals:
-        st.markdown(f'<div class="panel" style="margin-bottom:10px"><div class="eyebrow">{meal}</div><div class="panel-title">{suggestion}</div></div>', unsafe_allow_html=True)
-    st.markdown("**Helpful habits**")
-    st.write("- Drink water regularly and eat a variety of foods.")
-    st.write("- Notice whether a particular food seems to coincide with flare-ups; avoid overly restrictive diets.")
-    st.write("- Some people report acne triggers from high-glycemic foods or certain dairy products, but responses differ.")
-    st.caption("This planner is general information, not a treatment plan. Follow any medical or dietary advice you have already received.")
+    st.markdown(
+        '<div class="eyebrow">THE EVERYDAY FOOD GUIDE</div>'
+        '<h1 class="hero-title">Meal ideas made around your preferences.</h1>'
+        '<p class="hero-copy">Choose your food preference and ask the fine-tuned AcneClear LLM for balanced, practical Indian meal ideas.</p>',
+        unsafe_allow_html=True,
+    )
+    st.image(
+        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1600&q=85",
+        caption="A colourful, balanced plate",
+        use_container_width=True,
+    )
+    col1, col2 = st.columns(2, gap="large")
+    with col1:
+        preference = st.selectbox(
+            "Food preference",
+            ["Vegetarian", "Includes eggs", "Includes meat or fish", "Vegan"],
+            key="diet_preference",
+        )
+        meal_style = st.selectbox(
+            "Meal style",
+            ["South Indian", "North Indian", "Mixed Indian", "Any cuisine"],
+            key="diet_meal_style",
+        )
+    with col2:
+        budget = st.selectbox(
+            "Budget",
+            ["Affordable / student budget", "Moderate", "Flexible"],
+            key="diet_budget",
+        )
+        meals_per_day = st.selectbox(
+            "Meals to plan",
+            ["3 meals", "3 meals + 1 snack", "3 meals + 2 snacks"],
+            key="diet_meals_per_day",
+        )
+    allergies = st.text_input(
+        "Food allergies or foods to avoid (optional)",
+        placeholder="Example: peanuts, lactose, mushrooms",
+        key="diet_allergies",
+    )
+    diet_question = st.text_area(
+        "What would you like the meal planner to consider?",
+        placeholder="Example: I stay in a hostel and need quick meals.",
+        height=90,
+        key="diet_question",
+    )
+    if st.button("Generate my meal plan", type="primary", use_container_width=True):
+        prompt = (
+            "[DIET TOPIC]\n"
+            f"Create general Indian meal ideas for this preference: {preference}. "
+            f"Meal style: {meal_style}. Budget: {budget}. Meals: {meals_per_day}. "
+            f"Allergies/foods to avoid: {allergies or 'None specified'}. "
+            f"Additional request: {diet_question or 'No additional request.'} "
+            "Give practical breakfast, lunch, snack and dinner suggestions as appropriate. "
+            "Do not invent calorie or nutrient values. Do not create a medical diet, crash diet, "
+            "or promise that food will cure acne. Respect allergies and remind the user to check labels."
+        )
+        with st.spinner("AcneClear AI is preparing your meal ideas..."):
+            try:
+                st.session_state["acneclear_diet_response"] = ask_acneclear_ai(prompt)
+            except Exception as exc:
+                st.error(f"Could not reach the AI service: {type(exc).__name__}: {exc}")
+    if st.session_state.get("acneclear_diet_response"):
+        st.markdown("### Your AI-generated meal ideas")
+        st.markdown(st.session_state["acneclear_diet_response"])
+    st.info(
+        "Meal ideas are general information, not a medical diet or treatment. "
+        "For medical conditions, pregnancy, serious allergies, or medicine-related diet questions, "
+        "consult a registered dietitian or clinician."
+    )
+
+elif page == "AI Chatbot":
+    st.markdown(
+        '<div class="eyebrow">ACNECLEAR AI ASSISTANT</div>'
+        '<h1 class="hero-title">Ask me anything.</h1>'
+        '<p class="hero-copy">Ask about acne education, skincare, recipes, studies, coding, technology, writing, science, or everyday questions.</p>',
+        unsafe_allow_html=True,
+    )
+    st.caption(
+        "Powered by your fine-tuned Qwen3-0.6B model. It does not have live web access and is not a medical professional."
+    )
+    for item in st.session_state["acneclear_chat_history"]:
+        with st.chat_message(item["role"]):
+            st.markdown(item["content"])
+
+    prompt = st.chat_input("Ask AcneClear AI a question...")
+    if prompt:
+        previous_history = st.session_state["acneclear_chat_history"][-8:]
+        st.session_state["acneclear_chat_history"].append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        with st.chat_message("assistant"):
+            with st.spinner("AcneClear AI is thinking..."):
+                try:
+                    reply = ask_acneclear_ai("[GENERAL TOPIC]\n" + prompt, previous_history)
+                except Exception as exc:
+                    reply = (
+                        "The AI service is not connected or is temporarily unavailable. "
+                        "Check the Hugging Face Space status and the ACNECLEAR_CHAT_SPACE secret. "
+                        f"Technical detail: {type(exc).__name__}: {exc}"
+                    )
+                st.markdown(reply)
+        st.session_state["acneclear_chat_history"].append({"role": "assistant", "content": reply})
+
+    if st.button("Clear chat history"):
+        st.session_state["acneclear_chat_history"] = []
+        st.rerun()
 
 st.markdown("---")
 st.markdown('<div class="small-note">ACNECLEAR AI · Educational photo-retouching and wellness demo. Photo restoration is not a dedicated acne-removal model. Skincare and diet information is general education, not medical advice.</div>', unsafe_allow_html=True)
