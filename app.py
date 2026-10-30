@@ -769,97 +769,56 @@ elif page == "AI Chatbot":
         label_visibility="collapsed",
     )
 
-    suggestions = {
-        "General AI": [
-            ("Explain a concept", "Explain a difficult concept in simple words and give me an example."),
-            ("Help me code", "Help me write and understand a Python program with an example."),
-            ("Plan something", "Help me create a practical step-by-step plan for my goal."),
-        ],
-        "Skin & wellness": [
-            ("Understand acne", "Explain the common types of acne and how they differ. Keep it educational."),
-            ("Build a gentle routine", "Explain a simple morning and evening routine for acne-prone, oily skin."),
-            ("Understand ingredients", "Explain what salicylic acid, benzoyl peroxide and retinoids are generally used for, including common precautions."),
-        ],
-        "Project mentor": [
-            ("Explain my architecture", "Explain my complete AcneClear AI architecture in simple words."),
-            ("Explain my LLM", "Explain Qwen3-0.6B, its 28 Transformer blocks and how LoRA fine-tuning works in my project."),
-            ("Prepare my viva", "Ask me five faculty viva questions about AcneClear AI, one at a time, and evaluate my answers."),
-        ],
-    }
-
-    main_chat, side_panel = st.columns([0.72, 0.28], gap="large")
-
-    with side_panel:
+    title_col, action_col = st.columns([0.78, 0.22], gap="small")
+    with title_col:
         st.markdown(
-            '<div class="response-card">'
-            '<div class="eyebrow">QUICK START</div>'
-            '<h3 style="margin:0 0 6px 0;color:#17365D">Try a prompt</h3>'
-            '<p style="font-size:12px;color:#52657A;margin:0">Choose a starting point. You can continue with any question afterward.</p>'
-            '</div>',
+            '<div class="eyebrow" style="margin:8px 0 8px 0">CONVERSATION</div>',
             unsafe_allow_html=True,
         )
-        for index, (label, prompt_text) in enumerate(suggestions[focus]):
-            if st.button(label, key=f"assistant_prompt_{focus}_{index}", use_container_width=True):
-                st.session_state["acneclear_pending_prompt"] = prompt_text
-                st.rerun()
-
-        st.markdown(
-            '<div class="response-card" style="margin-top:14px">'
-            '<div class="eyebrow">ABOUT THIS ASSISTANT</div>'
-            '<p style="font-size:12px;color:#52657A;margin:0">The focus only guides the response style. It does not restrict the topics you can ask about.</p>'
-            '</div>',
-            unsafe_allow_html=True,
-        )
+    with action_col:
         if st.button("Start a new chat", key="assistant_new_chat", use_container_width=True):
             st.session_state["acneclear_chat_history"] = []
             st.session_state.pop("acneclear_pending_prompt", None)
             st.rerun()
 
-    with main_chat:
-        st.markdown(
-            '<div class="eyebrow" style="margin:2px 0 8px 0">CONVERSATION</div>',
-            unsafe_allow_html=True,
-        )
-        with st.container(height=510, border=True):
-            if not st.session_state["acneclear_chat_history"] and not st.session_state.get("acneclear_pending_prompt"):
-                st.markdown(
-                    '<div style="padding:24px 12px;text-align:center">'
-                    '<div style="font-size:12px;letter-spacing:2px;font-weight:800;color:#496A91">WELCOME TO ACNECLEAR AI</div>'
-                    '<h3 style="color:#17365D;margin:10px 0 6px 0">What would you like to explore?</h3>'
-                    '<p style="font-size:13px;color:#52657A">Ask a question in your own words, or start with one of the prompts.</p>'
-                    '</div>',
-                    unsafe_allow_html=True,
-                )
-            for item in st.session_state["acneclear_chat_history"]:
-                with st.chat_message(item["role"]):
-                    st.markdown(item["content"])
+    with st.container(height=540, border=True):
+        if not st.session_state["acneclear_chat_history"]:
+            st.markdown(
+                '<div style="padding:45px 16px;text-align:center">'
+                '<div style="font-size:12px;letter-spacing:2px;font-weight:800;color:#496A91">WELCOME TO ACNECLEAR AI</div>'
+                '<h3 style="color:#17365D;margin:10px 0 6px 0">What would you like to ask?</h3>'
+                '<p style="font-size:13px;color:#52657A">Type your question below. You can ask about your project, skin wellness, coding, learning or everyday topics.</p>'
+                '</div>',
+                unsafe_allow_html=True,
+            )
+        for item in st.session_state["acneclear_chat_history"]:
+            with st.chat_message(item["role"]):
+                st.markdown(item["content"])
 
-    pending_prompt = st.session_state.pop("acneclear_pending_prompt", None)
-    prompt = pending_prompt or st.chat_input(
+    prompt = st.chat_input(
         "Ask AcneClear AI anything...",
         disabled=not api_ready,
     )
     if prompt:
         previous_history = st.session_state["acneclear_chat_history"][-8:]
         st.session_state["acneclear_chat_history"].append({"role": "user", "content": prompt})
-        focus_instruction = (
-            f"Optional response focus: {focus}. Use this only as a style/context hint. "
-            "Always answer the actual question, including questions outside this focus.\\n\\n"
-        )
-        with main_chat:
-            with st.chat_message("user"):
-                st.markdown(prompt)
-            with st.chat_message("assistant"):
-                with st.spinner("Thinking through your question..."):
-                    try:
-                        reply = ask_acneclear_ai(focus_instruction + prompt, previous_history)
-                    except Exception as exc:
-                        reply = (
-                            "I couldn't get a response from the AI service. "
-                            "Check the GEMINI_API_KEY in Streamlit Secrets and the available free-tier quota. "
-                            f"Details: {type(exc).__name__}: {exc}"
-                        )
-                    st.markdown(reply)
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking through your question..."):
+                try:
+                    focus_instruction = (
+                        f"Optional response focus: {focus}. Use this only as a style/context hint. "
+                        "Always answer the actual question, including questions outside this focus.\n\n"
+                    )
+                    reply = ask_acneclear_ai(focus_instruction + prompt, previous_history)
+                except Exception as exc:
+                    reply = (
+                        "I couldn't get a response from the AI service. "
+                        "Check the GEMINI_API_KEY in Streamlit Secrets and the available free-tier quota. "
+                        f"Details: {type(exc).__name__}: {exc}"
+                    )
+                st.markdown(reply)
         st.session_state["acneclear_chat_history"].append({"role": "assistant", "content": reply})
 
 st.markdown("---")
