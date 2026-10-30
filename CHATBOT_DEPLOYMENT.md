@@ -1,29 +1,24 @@
-# AcneClear AI — connect your completed Qwen3 LoRA model
+# Connect your trained LLM to AcneClear AI
 
-Your uploaded Colab notebook confirms that training completed for 3 epochs. The adapter is saved in Google Drive:
+The Streamlit website code is already committed. The chatbot will not answer until the fine-tuned adapter is uploaded to Hugging Face and the Space is deployed.
 
-`MyDrive/AcneClear_AI/Qwen3_LoRA_Training/qwen3_0_6b_lora_adapter`
+## A. Upload your completed adapter from Google Drive
 
-The notebook's Hugging Face upload cell was skipped (PUSH_TO_HUB=False), so the adapter is not yet available to the website. Do the steps below once.
+Open your completed Colab notebook. It already mounted Google Drive. Add a new cell and run:
 
-## 1. Upload the adapter from Google Drive to Hugging Face Hub
-
-Open the completed Colab notebook. Add a new cell and run:
-
-```python
-from google.colab import drive
-drive.mount("/content/drive")
+\`\`\`python
+!pip -q install -U huggingface_hub
 
 from huggingface_hub import notebook_login, HfApi
 from pathlib import Path
 
-notebook_login()  # paste a Hugging Face write token when prompted
+notebook_login()  # paste a Hugging Face WRITE token in the login prompt
 
 adapter_dir = Path(
     "/content/drive/MyDrive/AcneClear_AI/Qwen3_LoRA_Training/qwen3_0_6b_lora_adapter"
 )
-assert (adapter_dir / "adapter_config.json").exists(), "Adapter folder is missing adapter_config.json"
-assert any(adapter_dir.glob("adapter_model.*")), "Adapter weights are missing"
+assert (adapter_dir / "adapter_config.json").exists(), "Missing adapter_config.json"
+assert any(adapter_dir.glob("adapter_model.*")), "Missing adapter_model weights"
 
 repo_id = "YOUR_HF_USERNAME/acneclear-qwen3-lora"
 api = HfApi()
@@ -32,65 +27,63 @@ api.upload_folder(
     folder_path=str(adapter_dir),
     repo_id=repo_id,
     repo_type="model",
-    commit_message="Upload trained AcneClear Qwen3 LoRA adapter",
+    commit_message="Upload completed AcneClear Qwen3 LoRA adapter",
 )
-print("Uploaded adapter:", repo_id)
-```
+print("Adapter uploaded:", repo_id)
+\`\`\`
 
-Replace `YOUR_HF_USERNAME` with your actual Hugging Face username. Use a Hugging Face write token only inside Colab's login prompt; never paste it into GitHub or app.py.
+Replace \`YOUR_HF_USERNAME\` with your Hugging Face username. The token needs **write** permission for this upload. Do not paste the token into GitHub, app.py, or chat.
 
-## 2. Create a Hugging Face Space for model inference
+## B. Create the Hugging Face Space
 
-1. On Hugging Face, create a new **Space**.
-2. Choose **Gradio** as the SDK.
-3. Choose **Public** for the Space so the Streamlit website can call it. The model adapter itself can remain private.
-4. Copy the files from this repository's `chatbot_space/` folder into the root of the new Space:
-   - `app.py`
-   - `requirements.txt`
-   - `README.md`
+1. Go to Hugging Face → Spaces → Create new Space.
+2. Choose Gradio SDK. A public Space is easiest for Streamlit to call; keep the model adapter repository private if you prefer.
+3. Name it, for example, \`acneclear-ai-assistant\`.
+4. Open the GitHub repository folder \`chatbot_space/\` and upload its three files into the **root** of the new Space:
+   - \`app.py\`
+   - \`requirements.txt\`
+   - \`README.md\`
 5. In Space **Settings → Variables and secrets**, add:
-   - Variable `HF_ADAPTER_REPO` = `YOUR_HF_USERNAME/acneclear-qwen3-lora`
-   - Secret `HF_TOKEN` = Hugging Face read token with access to the private adapter.
-6. Wait for the Space to build and become **Running**. First startup downloads the base model and adapter. CPU inference may be slower; use a supported GPU Space if available.
+   - Variable \`HF_ADAPTER_REPO\` = \`YOUR_HF_USERNAME/acneclear-qwen3-lora\`
+   - Secret \`HF_TOKEN\` = a Hugging Face **read** token with access to that private model repository.
+6. Wait until the Space says **Running**. On first startup, it downloads Qwen3-0.6B and your adapter. Free CPU inference can be slow; if memory is insufficient, use a supported GPU Space or a smaller quantized serving setup.
 
-## 3. Connect Streamlit Community Cloud
+The Space exposes \`/chat\` with two API inputs: message and conversation history.
 
-In the Streamlit app deployment settings → **Secrets**, add:
+## C. Connect Streamlit Community Cloud
 
-```toml
-ACNECLEAR_CHAT_SPACE = "YOUR_HF_USERNAME/YOUR_SPACE_NAME"
-```
+Open the Streamlit Community Cloud app settings → **Secrets** and add:
 
-If your Gradio Space is private, add a read token too:
+\`\`\`toml
+ACNECLEAR_CHAT_SPACE = "YOUR_HF_USERNAME/acneclear-ai-assistant"
+\`\`\`
 
-```toml
+For a public Space, no additional Space token is needed. For a private Space, add:
+
+\`\`\`toml
 ACNECLEAR_CHAT_TOKEN = "hf_your_read_token"
-```
+\`\`\`
 
-For a public Space, omit `ACNECLEAR_CHAT_TOKEN`.
+Save the secrets. Streamlit will restart. The Diet Planner, Beauty Tips and AI Chatbot all use this same endpoint/model.
 
-## 4. Test the website
+## D. Test the unified chatbot
 
-- AI Chatbot: ask a general question, e.g. "Explain Python functions with an example."
-- Beauty Tips: select oily/sensitive skin and request a morning/evening routine.
-- Diet Planner: select vegetarian, South Indian, affordable and request meal ideas.
-- Acne Remover: upload a test portrait and confirm GFPGAN still works.
+Open https://acneclear.streamlit.app/ and choose **AI Chatbot**. Try:
 
-## What changed in app.py
+1. "Explain all four modules of my AcneClear AI project."
+2. "What is the difference between GFPGAN and Qwen3?"
+3. "How many Transformer blocks does my LLM have?"
+4. "Explain my training dataset and results."
+5. "Explain Python functions with an example."
 
-- Added an AI Chatbot page.
-- Beauty Tips now requests generated skincare guidance from the fine-tuned LLM.
-- Diet Planner now requests generated meal ideas from the fine-tuned LLM.
-- The existing GFPGAN photo-restoration functions and Acne Remover branch were left unchanged.
-- The model runs in the separate Hugging Face Space; Streamlit only calls its Gradio API.
+Also test Beauty Tips and Diet Planner. Both should generate their answers using the same LLM.
 
-## Model and safety notes
+## Why your screenshots did not show answers
 
-- Base model: Qwen/Qwen3-0.6B.
-- Fine-tuning: supervised fine-tuning with LoRA.
-- The adapter is the trained project model, not a full copy of Qwen3.
-- General questions use the base LLM's existing general capabilities plus your fine-tuning.
-- The model has no live web access.
-- Skincare answers are educational, not diagnosis or treatment.
-- Meal ideas are not medical nutrition prescriptions. For allergies, pregnancy, chronic illness, or medicine-related diets, advise a qualified clinician or dietitian.
-- Do not claim that language-model loss/perplexity measures medical correctness.
+The Diet Planner screenshot shows this exact error: \`ACNECLEAR_CHAT_SPACE\` is missing from Streamlit Secrets. The chatbot screenshot shows an empty conversation; no answer can be generated until the Space is deployed and connected. The adapter was saved in Google Drive but the notebook's Hub upload cell was skipped.
+
+## Project facts embedded in the chatbot
+
+The Space system context includes the verified project structure and notebook results: GFPGAN v1.3 image restoration; OpenCV smoothing; Qwen3-0.6B with 28 Transformer blocks; LoRA rank 8, alpha 16, dropout 0.05; 5,046,272 trainable adapter parameters; 2,757 prepared examples (190 acne, 1,369 skincare/ingredient, 1,198 Indian recipes); 3 epochs; 62.47 minutes; test loss 0.7037; perplexity 2.0212; sampled response-token accuracy 78.28% on 64 examples; final validation loss 0.7175. Accuracy/loss/perplexity are language-model diagnostics, not medical or answer-quality guarantees.
+
+The unified chatbot can answer general questions using Qwen's base-model capabilities, but it has no live web access. For current facts it should say that it cannot browse. Skincare advice is educational, not diagnosis or treatment; diet ideas are not medical nutrition prescriptions.
