@@ -48,8 +48,8 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 :root {
-  --cream:#F3EBDD; --sage:#A3ACA1; --burgundy:#651F32;
-  --ink:#342B2B; --muted:#756B68; --line:#D8D0C6; --white:#FFFFFF;
+  --cream:#F7F9FC; --sage:#B8C7D9; --burgundy:#17365D;
+  --ink:#172B4D; --muted:#52657A; --line:#D8E1EC; --white:#FFFFFF;
 }
 .stApp { background:var(--cream); color:var(--ink); font-family:'DM Sans',sans-serif; }
 .block-container { max-width:1320px; padding-top:1.3rem; padding-bottom:3rem; }
@@ -67,31 +67,31 @@ p, label, .stMarkdown { color:var(--ink); }
 .panel {background:var(--white);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 8px 26px rgba(65,42,35,.04);}
 .panel-title {color:var(--burgundy);font-family:'Manrope',sans-serif;font-weight:800;font-size:17px;margin-bottom:5px;}
 .panel-sub {color:var(--muted);font-size:13px;line-height:1.55;margin-bottom:12px;}
-.pill {display:inline-block;border:1px solid var(--sage);background:#E7EAE5;color:var(--burgundy);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:700;}
+.pill {display:inline-block;border:1px solid var(--sage);background:#EAF0F7;color:var(--burgundy);border-radius:6px;padding:5px 9px;font-size:11px;font-weight:700;}
 div.stButton > button, div.stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {
  background:var(--burgundy);color:#fff;border:1px solid var(--burgundy);border-radius:8px;min-height:42px;font-weight:700;padding:.55rem 1rem;
 }
-div.stButton > button:hover, div.stDownloadButton > button:hover, div[data-testid="stFormSubmitButton"] > button:hover {background:#7B2A42 !important;border-color:#7B2A42 !important;color:#fff !important;}
+div.stButton > button:hover, div.stDownloadButton > button:hover, div[data-testid="stFormSubmitButton"] > button:hover {background:#244C7A !important;border-color:#244C7A !important;color:#fff !important;}
 div.stButton > button p, div.stDownloadButton > button p, div[data-testid="stFormSubmitButton"] > button p {color:#fff !important;}
-div[data-baseweb="input"] input, div[data-baseweb="select"] input, div[data-baseweb="textarea"] textarea {background:#fff !important;color:#342B2B !important;}
-div[data-baseweb="select"] > div {background:#fff !important;color:#342B2B !important;}
+div[data-baseweb="input"] input, div[data-baseweb="select"] input, div[data-baseweb="textarea"] textarea {background:#fff !important;color:#172B4D !important;}
+div[data-baseweb="select"] > div {background:#fff !important;color:#172B4D !important;}
 div[data-testid="stImage"] img {border-radius:14px;}
 div[data-testid="stFileUploader"] {background:#fff;border:1px dashed var(--sage);border-radius:12px;padding:10px;}
-[data-testid="stSidebar"] {background:#F8F3EA;border-right:1px solid var(--line);}
+[data-testid="stSidebar"] {background:#F3F6FA;border-right:1px solid var(--line);}
 [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {color:var(--burgundy);font-family:'Manrope',sans-serif;}
 [data-testid="stMetric"] {background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;}
 div[data-baseweb="tab-list"] {gap:8px;}
-button[data-baseweb="tab"] {background:#E7EAE5;border-radius:8px 8px 0 0;color:var(--burgundy);padding:10px 16px;}
+button[data-baseweb="tab"] {background:#EAF0F7;border-radius:8px 8px 0 0;color:var(--burgundy);padding:10px 16px;}
 button[data-baseweb="tab"][aria-selected="true"] {background:var(--burgundy);color:#fff;}
 .stSlider [data-baseweb="slider"] div {background:var(--burgundy);}
-[data-testid="stChatInput"] textarea {background:#fff !important;color:#342B2B !important;}
-[data-testid="stChatInput"] textarea::placeholder {color:#756B68 !important;opacity:1 !important;}
-[data-testid="stChatInput"] button {color:#651F32 !important;}
+[data-testid="stChatInput"] textarea {background:#fff !important;color:#172B4D !important;}
+[data-testid="stChatInput"] textarea::placeholder {color:#52657A !important;opacity:1 !important;}
+[data-testid="stChatInput"] button {color:#17365D !important;}
 .small-note {color:var(--muted);font-size:11px;line-height:1.6;}
 hr {border-color:var(--line);}
 .brand-row {background:#fff;border:1px solid var(--line);border-radius:16px;padding:13px 17px;margin-bottom:16px;box-shadow:0 5px 20px rgba(65,42,35,.035);}
-.intro-strip {background:linear-gradient(110deg,#fff 0%,#F8F3EA 100%);border:1px solid var(--line);border-radius:16px;padding:17px 20px;margin:0 0 22px 0;}
-.intro-kicker {font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:#8C5966;font-weight:800;margin-bottom:5px;}
+.intro-strip {background:linear-gradient(110deg,#fff 0%,#F3F6FA 100%);border:1px solid var(--line);border-radius:16px;padding:17px 20px;margin:0 0 22px 0;}
+.intro-kicker {font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:#496A91;font-weight:800;margin-bottom:5px;}
 .intro-heading {font-family:'Manrope',sans-serif;font-size:21px;font-weight:800;color:var(--burgundy);line-height:1.2;}
 .intro-copy {font-size:13px;color:var(--muted);line-height:1.55;margin-top:5px;}
 .section-heading {background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px 20px;margin-bottom:16px;}
@@ -101,7 +101,7 @@ hr {border-color:var(--line);}
 .response-card {background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:12px 0;color:var(--ink);}
 [data-testid="stChatMessage"] {background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px 15px;margin:10px 0;}
 [data-testid="stChatInput"] {background:#fff;border:1px solid #CFC2B8;border-radius:14px;box-shadow:0 5px 18px rgba(65,42,35,.07);}
-[data-testid="stChatInput"] textarea {background:transparent !important;color:#342B2B !important;}
+[data-testid="stChatInput"] textarea {background:transparent !important;color:#172B4D !important;}
 .stChatFloatingInputContainer {background:rgba(243,235,221,.97) !important;border-top:1px solid var(--line);padding-top:10px;}
 div[data-testid="stButton"] button {transition:all .15s ease;}
 div[data-testid="stButton"] button:focus {border-color:var(--burgundy) !important;box-shadow:0 0 0 2px rgba(101,31,50,.12) !important;}
@@ -177,14 +177,14 @@ def compare_slider(before: Image.Image, after: Image.Image, height: int = 520):
     before_uri, after_uri = data_uri(before), data_uri(after)
     html = f"""<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-*{{box-sizing:border-box}}body{{margin:0;background:#F3EBDD;font-family:Arial,sans-serif}}
-.compare{{position:relative;width:100%;height:{height}px;overflow:hidden;border-radius:12px;background:#fff;border:1px solid #D8D0C6;--pos:50%}}
+*{{box-sizing:border-box}}body{{margin:0;background:#F7F9FC;font-family:Arial,sans-serif}}
+.compare{{position:relative;width:100%;height:{height}px;overflow:hidden;border-radius:12px;background:#fff;border:1px solid #D8E1EC;--pos:50%}}
 .compare img{{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}}
 .after{{clip-path:inset(0 0 0 var(--pos))}}
-.line{{position:absolute;top:0;bottom:0;left:var(--pos);width:2px;background:#fff;box-shadow:0 0 0 1px #651F3240;pointer-events:none}}
-.knob{{position:absolute;left:var(--pos);top:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:#651F32;border:2px solid #fff;box-shadow:0 2px 10px #0002;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;pointer-events:none}}
+.line{{position:absolute;top:0;bottom:0;left:var(--pos);width:2px;background:#fff;box-shadow:0 0 0 1px #17365D40;pointer-events:none}}
+.knob{{position:absolute;left:var(--pos);top:50%;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;background:#17365D;border:2px solid #fff;box-shadow:0 2px 10px #0002;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;pointer-events:none}}
 input{{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}}
-.label{{position:absolute;top:12px;padding:7px 10px;border-radius:5px;background:#651F32;color:#fff;font-size:11px;font-weight:700;letter-spacing:.3px}}
+.label{{position:absolute;top:12px;padding:7px 10px;border-radius:5px;background:#17365D;color:#fff;font-size:11px;font-weight:700;letter-spacing:.3px}}
 .l{{left:12px}}.r{{right:12px}}
 </style></head><body><div class="compare" id="compare"><img src="{before_uri}" alt="Original"><img class="after" src="{after_uri}" alt="Retouched"><div class="line"></div><div class="knob">↔</div><div class="label l">ORIGINAL</div><div class="label r">RETOUCHED</div><input id="range" type="range" min="0" max="100" value="50" aria-label="Compare images"></div>
 <script>const c=document.getElementById('compare'),r=document.getElementById('range');r.addEventListener('input',()=>c.style.setProperty('--pos',r.value+'%'));</script>
@@ -318,6 +318,142 @@ def ask_acneclear_ai(prompt: str, history=None) -> str:
     return answer
 
 
+def offline_beauty_starter(skin_type: str, concerns: list, sensitivity: str, question: str) -> str:
+    """Safe, general fallback when the free AI API key has not been configured."""
+    if skin_type == "Oily":
+        moisturizer = "Choose a light, oil-free or non-comedogenic moisturizer if it suits your skin."
+    elif skin_type == "Dry":
+        moisturizer = "Choose a gentle, fragrance-free cream moisturizer that feels comfortable."
+    elif skin_type == "Sensitive" or "Sensitive" in sensitivity:
+        moisturizer = "Choose a fragrance-free moisturizer and stop any product that causes persistent stinging."
+    elif skin_type == "Combination":
+        moisturizer = "Use a light moisturizer overall and add a little more to dry areas if needed."
+    else:
+        moisturizer = "Use a simple moisturizer that feels comfortable and does not irritate your skin."
+
+    concern_text = ", ".join(concerns) if concerns else "general skin care"
+    question_line = (
+        f"\n\n**Your question:** {question}\n\n"
+        "This offline starter cannot provide a personalized answer to the extra question. "
+        "Connect the AI key to get a generated response."
+        if question.strip() else ""
+    )
+    return f"""### Your starter routine
+**Skin type:** {skin_type}  
+**Concerns selected:** {concern_text}
+
+#### Morning
+1. Gently wash with a mild, non-abrasive cleanser or rinse with lukewarm water.
+2. {moisturizer}
+3. Apply a broad-spectrum SPF 30+ sunscreen. Follow the product label and reapply as directed.
+
+#### Evening
+1. Gently remove makeup and sunscreen.
+2. Wash with a mild cleanser. Do not scrub or use rough brushes.
+3. Apply your moisturizer.
+
+#### Habits to avoid
+- Do not squeeze or pick pimples.
+- Avoid harsh scrubs, lemon juice, toothpaste and several new products at once.
+- Introduce only one new skincare product at a time.
+
+#### When to get professional advice
+Painful, deep, persistent or scarring acne should be assessed by a dermatologist. This routine is general education, not an acne treatment or a guarantee of clear skin.{question_line}"""
+
+
+def offline_diet_starter(preference: str, meal_style: str, meals_per_day: str, foods_to_avoid: str) -> str:
+    """Conservative Indian meal ideas for demo mode; not a medical diet."""
+    if foods_to_avoid.strip():
+        return (
+            "### Allergy-aware planning needs the AI connection\n"
+            "You listed foods to avoid: **" + foods_to_avoid.strip() + "**.\n\n"
+            "The offline starter menu cannot reliably verify ingredients, hidden allergens or kitchen cross-contact. "
+            "I have not generated a menu so it does not accidentally include something unsafe. "
+            "Connect the AI service for a menu that takes this list into account, and always verify labels and preparation with the food provider."
+        )
+
+    vegan = preference == "Vegan"
+    eggs = preference == "Includes eggs"
+    meat = preference == "Includes meat or fish"
+    south = meal_style == "South Indian"
+    north = meal_style == "North Indian"
+
+    if south:
+        if vegan:
+            breakfast = "Idli with sambar and coconut chutney (confirm the chutney and sambar contain no dairy)."
+            lunch = "Rice with sambar, vegetable poriyal and a chickpea sundal side."
+            dinner = "Ragi dosa with vegetable sambar and a seasonal vegetable side."
+        elif eggs:
+            breakfast = "Idli with sambar and one well-cooked boiled egg."
+            lunch = "Rice with sambar, vegetable poriyal and a well-cooked egg curry."
+            dinner = "Dosa with vegetable sambar and a side of dal."
+        elif meat:
+            breakfast = "Idli with sambar and fruit."
+            lunch = "Rice with vegetable sambar, poriyal and well-cooked fish or chicken."
+            dinner = "Dosa with sambar and a vegetable side; add dal if you prefer a vegetarian dinner."
+        else:
+            breakfast = "Idli with sambar and coconut chutney."
+            lunch = "Rice with sambar, vegetable poriyal and curd if tolerated."
+            dinner = "Ragi dosa with sambar and a seasonal vegetable side."
+        snack_options = ["A seasonal fruit", "Roasted chana", "Steamed sundal"]
+    elif north:
+        if vegan:
+            breakfast = "Vegetable poha with lemon and a side of fruit."
+            lunch = "Chapati with chana masala and seasonal sabzi."
+            dinner = "Moong dal khichdi with cucumber salad."
+        elif eggs:
+            breakfast = "Vegetable poha with one well-cooked egg."
+            lunch = "Chapati with dal, seasonal sabzi and egg bhurji."
+            dinner = "Moong dal khichdi with cucumber salad."
+        elif meat:
+            breakfast = "Vegetable poha with fruit."
+            lunch = "Chapati with seasonal sabzi and well-cooked chicken."
+            dinner = "Moong dal khichdi with cucumber salad."
+        else:
+            breakfast = "Vegetable poha with curd if tolerated."
+            lunch = "Chapati with chana masala and seasonal sabzi."
+            dinner = "Moong dal khichdi with cucumber salad and curd if tolerated."
+        snack_options = ["Seasonal fruit", "Roasted chana", "Plain curd if tolerated" if not vegan else "Steamed chickpeas"]
+    else:
+        if vegan:
+            breakfast = "Vegetable upma with sambar or oats prepared with an unsweetened plant drink."
+            lunch = "Rice or chapati with dal, seasonal vegetables and chickpeas."
+            dinner = "Vegetable khichdi with a side of beans or tofu."
+        elif eggs:
+            breakfast = "Vegetable upma with one well-cooked egg."
+            lunch = "Rice or chapati with dal, seasonal vegetables and egg curry."
+            dinner = "Vegetable khichdi with curd if tolerated."
+        elif meat:
+            breakfast = "Vegetable upma with fruit."
+            lunch = "Rice or chapati with dal, vegetables and well-cooked chicken or fish."
+            dinner = "Vegetable khichdi with a side of dal."
+        else:
+            breakfast = "Vegetable upma with fruit."
+            lunch = "Rice or chapati with dal, seasonal vegetables and curd if tolerated."
+            dinner = "Vegetable khichdi with a side of beans or paneer."
+        snack_options = ["Seasonal fruit", "Roasted chana", "Plain curd if tolerated" if not vegan else "Steamed chickpeas"]
+
+    menu = [
+        ("Breakfast", breakfast),
+        ("Lunch", lunch),
+        ("Snack", snack_options[0]),
+        ("Second snack", snack_options[1]),
+        ("Dinner", dinner),
+    ]
+    wanted = 3 if meals_per_day == "3 meals" else (4 if meals_per_day == "3 meals + 1 snack" else 5)
+    chosen = [item for item in menu if item[0] != "Second snack"] if wanted == 4 else menu
+    if wanted == 3:
+        chosen = [menu[0], menu[1], menu[4]]
+    elif wanted == 4:
+        chosen = [menu[0], menu[1], menu[2], menu[4]]
+    return "### Sample one-day meal plan\n" + "\n".join(
+        f"**{name}:** {meal}" for name, meal in chosen
+    ) + (
+        "\n\n**Simple planning note:** Adjust portions to your appetite and activity. Include a variety of grains, pulses, vegetables and fruit across the week. "
+        "This is a general example, not a calorie target or medical diet."
+    )
+
+
 # Sidebar navigation
 with st.sidebar:
     st.markdown("## AcneClear AI")
@@ -393,138 +529,185 @@ if page == "Acne Remover":
 
 elif page == "Beauty Tips":
     st.markdown(
-        '<div class="eyebrow">THE DAILY SKIN EDIT</div>'
-        '<h1 class="hero-title">Skincare guidance that starts with you.</h1>'
-        '<p class="hero-copy">Tell AcneClear AI a little about your skin and ask a skincare question. The AI assistant will create an educational routine suggestion.</p>',
+        '<div class="section-heading">'
+        '<div class="eyebrow">BEAUTY TIPS</div>'
+        '<h1 class="hero-title" style="font-size:34px">A routine that fits your skin.</h1>'
+        '<p class="hero-copy">Choose your skin type and concerns. Get a simple morning and evening routine without unnecessary product recommendations.</p>'
+        '</div>',
         unsafe_allow_html=True,
     )
-    st.image(
-        "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1600&q=85",
-        caption="A simple, gentle skincare routine",
-        use_container_width=True,
-    )
-    left, right = st.columns(2, gap="large")
-    with left:
-        skin_type = st.selectbox(
-            "Skin type",
-            ["Oily", "Dry", "Combination", "Normal", "Sensitive", "Not sure"],
-            key="beauty_skin_type",
+    with st.container(border=True):
+        left, right = st.columns(2, gap="large")
+        with left:
+            skin_type = st.selectbox(
+                "Skin type",
+                ["Oily", "Dry", "Combination", "Normal", "Sensitive", "Not sure"],
+                key="beauty_skin_type",
+            )
+            concerns = st.multiselect(
+                "Main concerns",
+                ["Acne-prone skin", "Dryness", "Oiliness", "Uneven tone", "Sensitivity", "Blackheads", "General routine"],
+                default=["Acne-prone skin"],
+                key="beauty_concerns",
+            )
+        with right:
+            sensitivity = st.selectbox(
+                "Skin sensitivity",
+                ["Sensitive / easily irritated", "Not especially sensitive", "Not sure"],
+                key="beauty_sensitivity",
+            )
+            extra_question = st.text_area(
+                "Your skincare question (optional)",
+                placeholder="Example: I have oily skin. Do I still need moisturizer?",
+                height=105,
+                key="beauty_question",
+            )
+        generate_beauty = st.button(
+            "Create my skincare routine",
+            type="primary",
+            use_container_width=True,
+            key="generate_beauty_routine",
         )
-        concerns = st.multiselect(
-            "Main concerns",
-            ["Acne-prone skin", "Dryness", "Oiliness", "Uneven tone", "Sensitivity", "Blackheads", "General routine"],
-            default=["Acne-prone skin"],
-            key="beauty_concerns",
-        )
-    with right:
-        sensitivity = st.selectbox(
-            "Skin sensitivity",
-            ["Sensitive / easily irritated", "Not especially sensitive", "Not sure"],
-            key="beauty_sensitivity",
-        )
-        extra_question = st.text_area(
-            "Ask a beauty or skincare question",
-            placeholder="Example: Can I use moisturizer if my skin is oily?",
-            height=110,
-            key="beauty_question",
-        )
-    if st.button("Generate my skincare guidance", type="primary", use_container_width=True):
-        concern_text = ", ".join(concerns) if concerns else "General skincare"
+
+    if generate_beauty:
+        concern_text = ", ".join(concerns) if concerns else "General skin care"
         prompt = (
-            "[BEAUTY TOPIC]\n"
-            f"My skin type is {skin_type}. My concerns are {concern_text}. "
-            f"My sensitivity level is {sensitivity}. "
-            f"Please give me a simple, gentle morning and evening skincare routine. "
-            f"Also answer this question if provided: {extra_question or 'No additional question.'} "
-            "Use simple steps. Do not diagnose, prescribe medicines, promise acne removal, or recommend many products."
+            "Create a practical, beginner-friendly skincare routine using only the details below.\n"
+            f"Skin type: {skin_type}\nConcerns: {concern_text}\nSensitivity: {sensitivity}\n"
+            f"User question: {extra_question or 'No extra question'}\n\n"
+            "Return these exact sections with concise steps:\n"
+            "1. Skin profile summary (one sentence)\n"
+            "2. Morning routine (3 numbered steps: gentle cleanse, suitable moisturizer guidance, SPF 30+ sunscreen)\n"
+            "3. Evening routine (3 numbered steps)\n"
+            "4. What to avoid (3 useful points)\n"
+            "5. When to consult a dermatologist.\n"
+            "Adapt moisturizer texture to skin type. For sensitive skin prefer fragrance-free basics. "
+            "Do not prescribe medicines, claim that a product cures acne, recommend lemon/toothpaste/scrubs, "
+            "or invent product brands. Answer the user's extra question directly. Use simple language."
         )
-        with st.spinner("AcneClear AI is preparing your skincare guidance..."):
+        with st.spinner("Preparing your skincare routine..."):
             try:
-                st.session_state["acneclear_beauty_response"] = ask_acneclear_ai(prompt)
-            except Exception as exc:
-                st.error(f"Could not reach the AI service: {type(exc).__name__}: {exc}")
+                if _acneclear_setting("GEMINI_API_KEY"):
+                    st.session_state["acneclear_beauty_response"] = ask_acneclear_ai(prompt)
+                    st.session_state["acneclear_beauty_mode"] = "AI-generated"
+                else:
+                    st.session_state["acneclear_beauty_response"] = offline_beauty_starter(
+                        skin_type, concerns, sensitivity, extra_question
+                    )
+                    st.session_state["acneclear_beauty_mode"] = "Offline starter"
+            except Exception:
+                st.session_state["acneclear_beauty_response"] = offline_beauty_starter(
+                    skin_type, concerns, sensitivity, extra_question
+                )
+                st.session_state["acneclear_beauty_mode"] = "Offline starter"
+
     if st.session_state.get("acneclear_beauty_response"):
-        st.markdown("### Your AI-generated skincare guidance")
-        st.markdown('<div class="response-card">', unsafe_allow_html=True)
-        st.markdown(st.session_state["acneclear_beauty_response"])
-        st.markdown('</div>', unsafe_allow_html=True)
+        mode = st.session_state.get("acneclear_beauty_mode", "Starter")
+        st.markdown(f"### Your skincare routine · {mode}")
+        with st.container(border=True):
+            st.markdown(st.session_state["acneclear_beauty_response"])
+    if not _acneclear_setting("GEMINI_API_KEY"):
+        st.caption("Offline starter mode is active. Add GEMINI_API_KEY in Streamlit Secrets to enable personalized AI answers.")
     st.info(
-        "This is general skincare education, not a diagnosis or treatment plan. "
-        "For painful, persistent, worsening, or scarring acne, consult a dermatologist."
+        "General skincare education only. No online routine can guarantee clear skin. "
+        "For painful, persistent or scarring acne, consult a dermatologist."
     )
 
 elif page == "Diet Planner":
     st.markdown(
-        '<div class="eyebrow">THE EVERYDAY FOOD GUIDE</div>'
-        '<h1 class="hero-title">Meal ideas made around your preferences.</h1>'
-        '<p class="hero-copy">Choose your food preference and ask the AcneClear AI assistant for balanced, practical Indian meal ideas.</p>',
+        '<div class="section-heading">'
+        '<div class="eyebrow">DIET PLANNER</div>'
+        '<h1 class="hero-title" style="font-size:34px">Everyday meals, planned simply.</h1>'
+        '<p class="hero-copy">Choose your food preference, cuisine and budget. The planner gives a practical one-day menu with the number of meals you selected.</p>'
+        '</div>',
         unsafe_allow_html=True,
     )
-    st.image(
-        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1600&q=85",
-        caption="A colourful, balanced plate",
-        use_container_width=True,
-    )
-    col1, col2 = st.columns(2, gap="large")
-    with col1:
-        preference = st.selectbox(
-            "Food preference",
-            ["Vegetarian", "Includes eggs", "Includes meat or fish", "Vegan"],
-            key="diet_preference",
+    with st.container(border=True):
+        col1, col2 = st.columns(2, gap="large")
+        with col1:
+            preference = st.selectbox(
+                "Food preference",
+                ["Vegetarian", "Includes eggs", "Includes meat or fish", "Vegan"],
+                key="diet_preference",
+            )
+            meal_style = st.selectbox(
+                "Meal style",
+                ["South Indian", "North Indian", "Mixed Indian", "Any cuisine"],
+                key="diet_meal_style",
+            )
+        with col2:
+            budget = st.selectbox(
+                "Budget",
+                ["Affordable / student budget", "Moderate", "Flexible"],
+                key="diet_budget",
+            )
+            meals_per_day = st.selectbox(
+                "Meals to plan",
+                ["3 meals", "3 meals + 1 snack", "3 meals + 2 snacks"],
+                key="diet_meals_per_day",
+            )
+        allergies = st.text_input(
+            "Food allergies or foods to avoid",
+            placeholder="Example: peanuts, milk, mushrooms (leave blank if none)",
+            key="diet_allergies",
         )
-        meal_style = st.selectbox(
-            "Meal style",
-            ["South Indian", "North Indian", "Mixed Indian", "Any cuisine"],
-            key="diet_meal_style",
+        diet_question = st.text_area(
+            "Anything else to consider? (optional)",
+            placeholder="Example: I stay in a hostel and need quick, affordable meals.",
+            height=90,
+            key="diet_question",
         )
-    with col2:
-        budget = st.selectbox(
-            "Budget",
-            ["Affordable / student budget", "Moderate", "Flexible"],
-            key="diet_budget",
+        generate_diet = st.button(
+            "Create my meal plan",
+            type="primary",
+            use_container_width=True,
+            key="generate_diet_plan",
         )
-        meals_per_day = st.selectbox(
-            "Meals to plan",
-            ["3 meals", "3 meals + 1 snack", "3 meals + 2 snacks"],
-            key="diet_meals_per_day",
-        )
-    allergies = st.text_input(
-        "Food allergies or foods to avoid (optional)",
-        placeholder="Example: peanuts, lactose, mushrooms",
-        key="diet_allergies",
-    )
-    diet_question = st.text_area(
-        "What would you like the meal planner to consider?",
-        placeholder="Example: I stay in a hostel and need quick meals.",
-        height=90,
-        key="diet_question",
-    )
-    if st.button("Generate my meal plan", type="primary", use_container_width=True):
+
+    if generate_diet:
         prompt = (
-            "[DIET TOPIC]\n"
-            f"Create general Indian meal ideas for this preference: {preference}. "
-            f"Meal style: {meal_style}. Budget: {budget}. Meals: {meals_per_day}. "
-            f"Allergies/foods to avoid: {allergies or 'None specified'}. "
-            f"Additional request: {diet_question or 'No additional request.'} "
-            "Give practical breakfast, lunch, snack and dinner suggestions as appropriate. "
-            "Do not invent calorie or nutrient values. Do not create a medical diet, crash diet, "
-            "or promise that food will cure acne. Respect allergies and remind the user to check labels."
+            "Create a realistic ONE-DAY Indian meal plan. Follow these user constraints exactly.\n"
+            f"Food preference: {preference}\nCuisine: {meal_style}\nBudget: {budget}\n"
+            f"Requested meals: {meals_per_day}\nFoods to avoid / allergies: {allergies or 'None specified'}\n"
+            f"Additional context: {diet_question or 'None'}\n\n"
+            "Output exactly the requested meal count. Include Breakfast, Lunch and Dinner. "
+            "Add one or two clearly named snack slots only if the user selected them. "
+            "For each meal provide one practical dish and a short description of its main ingredients. "
+            "Keep choices aligned with the cuisine and budget. Vegetarian means no meat or fish; "
+            "Includes eggs may include eggs but not meat or fish; Vegan means no meat, fish, eggs, milk, curd, paneer, ghee or other animal products; "
+            "Includes meat or fish may include well-cooked chicken/fish. "
+            "Never include foods listed in the allergy/avoid field. Do not use calorie targets or unsupported nutrient numbers. "
+            "Do not call the plan an acne cure or medical diet. If an allergy is complex or serious, say that ingredient labels and cross-contact must be checked. "
+            "End with 2 short budget-friendly preparation tips."
         )
-        with st.spinner("AcneClear AI is preparing your meal ideas..."):
+        with st.spinner("Preparing your meal plan..."):
             try:
-                st.session_state["acneclear_diet_response"] = ask_acneclear_ai(prompt)
-            except Exception as exc:
-                st.error(f"Could not reach the AI service: {type(exc).__name__}: {exc}")
+                if _acneclear_setting("GEMINI_API_KEY"):
+                    st.session_state["acneclear_diet_response"] = ask_acneclear_ai(prompt)
+                    st.session_state["acneclear_diet_mode"] = "AI-generated"
+                else:
+                    st.session_state["acneclear_diet_response"] = offline_diet_starter(
+                        preference, meal_style, meals_per_day, allergies
+                    )
+                    st.session_state["acneclear_diet_mode"] = "Offline starter"
+            except Exception:
+                st.session_state["acneclear_diet_response"] = offline_diet_starter(
+                    preference, meal_style, meals_per_day, allergies
+                )
+                st.session_state["acneclear_diet_mode"] = "Offline starter"
+
     if st.session_state.get("acneclear_diet_response"):
-        st.markdown("### Your AI-generated meal ideas")
-        st.markdown('<div class="response-card">', unsafe_allow_html=True)
-        st.markdown(st.session_state["acneclear_diet_response"])
-        st.markdown('</div>', unsafe_allow_html=True)
+        mode = st.session_state.get("acneclear_diet_mode", "Starter")
+        st.markdown(f"### Your one-day menu · {mode}")
+        with st.container(border=True):
+            st.markdown(st.session_state["acneclear_diet_response"])
+    if not _acneclear_setting("GEMINI_API_KEY"):
+        st.caption("Offline starter mode is active. For personalized AI planning, add GEMINI_API_KEY in Streamlit Secrets.")
     st.info(
-        "Meal ideas are general information, not a medical diet or treatment. "
-        "For medical conditions, pregnancy, serious allergies, or medicine-related diet questions, "
-        "consult a registered dietitian or clinician."
+        "This is general meal inspiration, not a medical diet. If you have a medical condition, serious allergy "
+        "or medicine-related dietary restriction, consult a qualified professional."
     )
+
 
 elif page == "AI Chatbot":
     st.markdown(
@@ -537,9 +720,9 @@ elif page == "AI Chatbot":
     )
 
     if not _acneclear_setting("GEMINI_API_KEY"):
-        st.warning(
-            "Connect the free AI service by adding GEMINI_API_KEY in Streamlit Community Cloud → App settings → Secrets. "
-            "Create a key at https://aistudio.google.com/apikey. Do not enable paid billing."
+        st.info(
+            "Chatbot setup: add a free GEMINI_API_KEY in Streamlit Community Cloud → App settings → Secrets. "
+            "Create it at aistudio.google.com/apikey. Beauty Tips and Diet Planner still work with offline starter plans."
         )
     st.caption(
         "Live chatbot engine: Gemini 3.5 Flash-Lite (free API tier). Your trained Qwen3-LoRA adapter remains a separate Colab training experiment."
@@ -550,8 +733,8 @@ elif page == "AI Chatbot":
     if not st.session_state["acneclear_chat_history"] and not pending_prompt:
         st.markdown(
             '<div class="response-card">'
-            '<h3 style="color:#651F32;margin-top:0">Welcome to AcneClear AI</h3>'
-            '<p style="color:#756B68">I can explain how your project works, help with skincare and meal ideas, or answer general questions. '
+            '<h3 style="color:#17365D;margin-top:0">Welcome to AcneClear AI</h3>'
+            '<p style="color:#52657A">I can explain how your project works, help with skincare and meal ideas, or answer general questions. '
             'Choose a suggested question or type your own below.</p>'
             '</div>',
             unsafe_allow_html=True,
@@ -575,7 +758,10 @@ elif page == "AI Chatbot":
         with st.chat_message(item["role"]):
             st.markdown(item["content"])
 
-    prompt = pending_prompt or st.chat_input("Message AcneClear AI...")
+    prompt = pending_prompt or st.chat_input(
+        "Message AcneClear AI...",
+        disabled=not bool(_acneclear_setting("GEMINI_API_KEY")),
+    )
     if prompt:
         previous_history = st.session_state["acneclear_chat_history"][-8:]
         st.session_state["acneclear_chat_history"].append({"role": "user", "content": prompt})
