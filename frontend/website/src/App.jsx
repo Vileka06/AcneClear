@@ -1,16 +1,19 @@
 import React, { useState } from "react";
 
+const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
 export default function App() {
   const [photoName, setPhotoName] = useState("");
   const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
 
   function onChoose(event) {
     const file = event.target.files && event.target.files[0];
-    setPhotoName(file ? file.name : "");
+    window.__acneclearSelectedFile = file || null;\n    setPhotoName(file ? file.name : "");
     setMessage("");
   }
 
-  return (
+  async function validatePhoto() {\n    if (!window.__acneclearSelectedFile) return;\n    setBusy(true);\n    setMessage("");\n    const form = new FormData();\n    form.append("file", window.__acneclearSelectedFile);\n    try {\n      const response = await fetch(`${API}/api/uploads/validate`, { method: "POST", body: form });\n      const data = await response.json();\n      if (!response.ok) throw new Error(data.detail || "Photo validation failed.");\n      setMessage(`Photo accepted: ${data.width} × ${data.height} pixels. AI prediction is the next milestone.`);\n    } catch (error) {\n      setMessage(`${error.message} Make sure the AcneClear API is running.`);\n    } finally {\n      setBusy(false);\n    }\n  }\n\n  return (
     <div className="page">
       <header className="header">
         <a className="brand" href="/"> <span className="brand-icon">✦</span><span>AcneClear <b>AI</b><small>SKIN WELLNESS STUDIO</small></span></a>
@@ -42,7 +45,7 @@ export default function App() {
           <div><div className="eyebrow">GET STARTED</div><h2>Begin with a skin photo</h2><p>Choose a clear facial photo in JPG, PNG or WEBP format. Image analysis will be connected in the next development stage.</p></div>
           <div className="upload-control">
             <label className="file-button">＋ <span>{photoName || "Choose a photo"}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={onChoose}/></label>
-            <button className="button" disabled={!photoName} onClick={() => setMessage("Your photo is selected. AI skin prediction is the next module we will connect.")}>Continue →</button>
+            <button className="button" disabled={!photoName || busy} onClick={validatePhoto}>{busy ? "Checking photo..." : "Continue →"}</button>
             {message && <p className="message" role="status">{message}</p>}
           </div>
         </section>
