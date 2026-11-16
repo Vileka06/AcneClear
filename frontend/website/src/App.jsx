@@ -1,100 +1,69 @@
-import { useEffect, useState } from "react";
-
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
-
-function Symbol({ children }) {
-  return <span className="symbol" aria-hidden="true">{children}</span>;
-}
+import React, { useState } from "react";
 
 export default function App() {
-  const [apiStatus, setApiStatus] = useState("checking");
-  const [file, setFile] = useState(null);
-  const [uploadMessage, setUploadMessage] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [photoName, setPhotoName] = useState("");
+  const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    fetch(`${API}/api/health`)
-      .then((response) => {
-        if (!response.ok) throw new Error("API unavailable");
-        return response.json();
-      })
-      .then(() => setApiStatus("online"))
-      .catch(() => setApiStatus("offline"));
-  }, []);
-
-  async function validateImage(event) {
-    event.preventDefault();
-    if (!file) return;
-    setBusy(true);
-    setUploadMessage("");
-    const body = new FormData();
-    body.append("file", file);
-    try {
-      const response = await fetch(`${API}/api/uploads/validate`, {
-        method: "POST",
-        body,
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.detail || "Upload validation failed.");
-      setUploadMessage(`Photo accepted: ${result.width} × ${result.height}. AI prediction will be connected in the next milestone.`);
-    } catch (error) {
-      setUploadMessage(`${error.message} Please check that the backend is running.`);
-    } finally {
-      setBusy(false);
-    }
+  function onChoose(event) {
+    const file = event.target.files && event.target.files[0];
+    setPhotoName(file ? file.name : "");
+    setMessage("");
   }
 
-  const modules = [
-    { symbol: "◎", title: "Skin analysis", text: "Upload a facial photo for region-based skin assessment.", tag: "Coming next" },
-    { symbol: "✧", title: "Beauty guidance", text: "Personalised morning and evening skincare education.", tag: "Planned" },
-    { symbol: "♧", title: "Diet planner", text: "Balanced meal ideas, recipes and food illustrations.", tag: "Planned" },
-    { symbol: "✦", title: "Image enhancement", text: "GFPGAN face restoration and an original-versus-restored comparison.", tag: "Model integration" },
-  ];
-
   return (
-    <main className="shell">
-      <header className="topbar">
-        <a className="brand" href="#"><span className="brand-mark">✧</span><span>AcneClear<span className="brand-ai"> AI</span><small>SKIN WELLNESS STUDIO</small></span></a>
-        <nav><a href="#features">Features</a><a href="#how">How it works</a></nav>
-        <a className="profile-button" href="#account">Sign in</a>
+    <div className="page">
+      <header className="header">
+        <a className="brand" href="/"> <span className="brand-icon">✦</span><span>AcneClear <b>AI</b><small>SKIN WELLNESS STUDIO</small></span></a>
+        <nav><a href="#features">Features</a><a href="#about">About</a></nav>
+        <a className="signin" href="#upload">Get started</a>
       </header>
 
-      <section className="hero">
-        <div className="hero-copy">
-          <span className="eyebrow">✧ YOUR PERSONAL SKIN WELLNESS SPACE</span>
-          <h1>Understand your skin.<br/><em>Care with confidence.</em></h1>
-          <p>One thoughtful place for skin analysis, personalised skincare education, balanced meal ideas and photo restoration.</p>
-          <a className="primary-button" href="#upload">Start with a photo <span>→</span></a>
-          <div className="trust-line">✓ Your photo is checked by the API and is not saved in this foundation build.</div>
-        </div>
-        <div className="hero-art">
-          <div className="orb orb-one"></div><div className="orb orb-two"></div>
-          <div className="face-card"><div className="face-illustration"><span className="hair"></span><span className="face-shape"><i className="eye eye-left"></i><i className="eye eye-right"></i><i className="nose"></i><i className="mouth"></i></span></div><div className="scan-label">◎ Skin analysis workspace</div></div>
-          <div className="floating-note">✧ Personalised care, step by step</div>
-        </div>
-      </section>
+      <main>
+        <section className="hero">
+          <div className="hero-text">
+            <div className="eyebrow">YOUR PERSONAL SKIN WELLNESS SPACE</div>
+            <h1>Understand your skin.<br/><span>Care with confidence.</span></h1>
+            <p>Explore skin analysis, personalised skincare education, balanced meal ideas and facial photo restoration in one thoughtful place.</p>
+            <a className="button" href="#upload">Start with a photo <span>→</span></a>
+            <div className="privacy">♧ Your photo is not stored by this starter website.</div>
+          </div>
+          <div className="visual">
+            <div className="visual-circle"></div>
+            <div className="portrait">
+              <div className="portrait-hair"></div>
+              <div className="portrait-face"><i className="eye left"></i><i className="eye right"></i><i className="nose"></i><i className="lips"></i></div>
+              <div className="portrait-caption">✧ YOUR SKIN, YOUR JOURNEY</div>
+            </div>
+            <div className="floating">Personalised care, step by step</div>
+          </div>
+        </section>
 
-      <section className="upload-section" id="upload">
-        <div><span className="eyebrow">GET STARTED</span><h2>Start with your skin photo</h2><p>Choose a clear, front-facing image in JPG, PNG or WEBP format, up to 10 MB.</p></div>
-        <form className="upload-box" onSubmit={validateImage}>
-          <label className="file-picker"><span>＋</span><span>{file ? file.name : "Choose a photo"}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => {setFile(event.target.files?.[0] || null);setUploadMessage("");}}/></label>
-          <button className="primary-button" disabled={!file || busy}>{busy ? "Checking..." : "Validate photo"} <span>→</span></button>
-          {uploadMessage && <p className="upload-message" role="status">{uploadMessage}</p>}
-        </form>
-      </section>
+        <section className="upload" id="upload">
+          <div><div className="eyebrow">GET STARTED</div><h2>Begin with a skin photo</h2><p>Choose a clear facial photo in JPG, PNG or WEBP format. Image analysis will be connected in the next development stage.</p></div>
+          <div className="upload-control">
+            <label className="file-button">＋ <span>{photoName || "Choose a photo"}</span><input type="file" accept="image/jpeg,image/png,image/webp" onChange={onChoose}/></label>
+            <button className="button" disabled={!photoName} onClick={() => setMessage("Your photo is selected. AI skin prediction is the next module we will connect.")}>Continue →</button>
+            {message && <p className="message" role="status">{message}</p>}
+          </div>
+        </section>
 
-      <section id="features" className="features-section">
-        <div className="section-heading"><span className="eyebrow">YOUR WELLNESS TOOLKIT</span><h2>Everything in one calm space</h2><p>These modules will be connected one by one as their AI services are implemented and tested.</p></div>
-        <div className="feature-grid">{modules.map((item) => <article className="feature-card" key={item.title}><span className="feature-icon">{item.symbol}</span><span className="feature-tag">{item.tag}</span><h3>{item.title}</h3><p>{item.text}</p><span className="feature-arrow">→</span></article>)}</div>
-      </section>
+        <section className="features" id="features">
+          <div className="section-title"><div className="eyebrow">YOUR WELLNESS TOOLKIT</div><h2>Everything in one calm space</h2><p>Designed to bring your skin and wellness journey together.</p></div>
+          <div className="cards">
+            <article><div className="card-icon">◎</div><small>AI ANALYSIS</small><h3>Skin analysis</h3><p>Explore visible skin concerns with planned region-based facial assessment.</p></article>
+            <article><div className="card-icon">✧</div><small>DAILY ROUTINE</small><h3>Beauty guidance</h3><p>Learn about morning and evening skincare routines and ingredients.</p></article>
+            <article><div className="card-icon">♧</div><small>HEALTHY HABITS</small><h3>Diet planner</h3><p>Discover balanced meal ideas, recipes and food inspiration.</p></article>
+            <article><div className="card-icon">✦</div><small>PHOTO RESTORATION</small><h3>Image enhancement</h3><p>Planned GFPGAN facial restoration with an original-versus-restored view.</p></article>
+          </div>
+        </section>
 
-      <section className="bottom-grid" id="how">
-        <article><Symbol>文</Symbol><h3>Your language, your comfort</h3><p>English, Kannada, Hindi and Telugu support is planned across the website and mobile experience.</p></article>
-        <article><Symbol>◷</Symbol><h3>Gentle reminders</h3><p>Optional skincare, hydration, meal and weekly progress reminders will be available with your permission.</p></article>
-        <article><Symbol>▤</Symbol><h3>Your progress</h3><p>A private history and progress view will be introduced after secure accounts and storage are ready.</p></article>
-      </section>
-
-      <footer><span>AcneClear AI</span><span className={`api-status ${apiStatus}`}><i/> API {apiStatus}</span><p>Educational wellness support only. This application does not diagnose skin disease or replace a dermatologist.</p></footer>
-    </main>
+        <section className="extras" id="about">
+          <article><b>文</b><h3>Four languages</h3><p>English, Kannada, Hindi and Telugu support planned.</p></article>
+          <article><b>◷</b><h3>Gentle reminders</h3><p>Optional skincare, water, meal and progress reminders.</p></article>
+          <article><b>▤</b><h3>Your progress</h3><p>Personal history and progress tracking after secure accounts are ready.</p></article>
+        </section>
+      </main>
+      <footer><b>AcneClear AI</b><span>Educational wellness support. Not a medical diagnosis or a replacement for a dermatologist.</span></footer>
+    </div>
   );
 }
