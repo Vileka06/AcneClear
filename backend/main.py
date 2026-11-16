@@ -1,4 +1,5 @@
 from io import BytesIO
+import os
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image, UnidentifiedImageError
@@ -10,14 +11,20 @@ app = FastAPI(
 )
 
 # Development origins. Set ACNECLEAR_WEB_ORIGIN for your deployed website later.
+web_origin = os.getenv("ACNECLEAR_WEB_ORIGIN", "").strip()
+allowed_origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:8081",
+    "http://127.0.0.1:8081",
+]
+if web_origin:
+    allowed_origins.extend(origin.strip() for origin in web_origin.split(",") if origin.strip())
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:8081",
-        "http://127.0.0.1:8081",
-    ],
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
