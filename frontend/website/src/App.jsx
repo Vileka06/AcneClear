@@ -4,24 +4,25 @@ const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export default function App() {
   const [photoName, setPhotoName] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
 
   function onChoose(event) {
     const file = event.target.files && event.target.files[0];
-    window.__acneclearSelectedFile = file || null;
+    setSelectedFile(file || null);
     setPhotoName(file ? file.name : "");
     setMessage("");
   }
 
   async function validatePhoto() {
-    if (!window.__acneclearSelectedFile) return;
+    if (!selectedFile) return;
 
     setBusy(true);
     setMessage("");
 
     const form = new FormData();
-    form.append("file", window.__acneclearSelectedFile);
+    form.append("file", selectedFile);
 
     try {
       const response = await fetch(`${API}/api/uploads/validate`, {
