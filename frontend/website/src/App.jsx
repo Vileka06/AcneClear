@@ -9,11 +9,44 @@ export default function App() {
 
   function onChoose(event) {
     const file = event.target.files && event.target.files[0];
-    window.__acneclearSelectedFile = file || null;\n    setPhotoName(file ? file.name : "");
+    window.__acneclearSelectedFile = file || null;
+    setPhotoName(file ? file.name : "");
     setMessage("");
   }
 
-  async function validatePhoto() {\n    if (!window.__acneclearSelectedFile) return;\n    setBusy(true);\n    setMessage("");\n    const form = new FormData();\n    form.append("file", window.__acneclearSelectedFile);\n    try {\n      const response = await fetch(`${API}/api/uploads/validate`, { method: "POST", body: form });\n      const data = await response.json();\n      if (!response.ok) throw new Error(data.detail || "Photo validation failed.");\n      setMessage(`Photo accepted: ${data.width} × ${data.height} pixels. AI prediction is the next milestone.`);\n    } catch (error) {\n      setMessage(`${error.message} Make sure the AcneClear API is running.`);\n    } finally {\n      setBusy(false);\n    }\n  }\n\n  return (
+  async function validatePhoto() {
+    if (!window.__acneclearSelectedFile) return;
+
+    setBusy(true);
+    setMessage("");
+
+    const form = new FormData();
+    form.append("file", window.__acneclearSelectedFile);
+
+    try {
+      const response = await fetch(`${API}/api/uploads/validate`, {
+        method: "POST",
+        body: form
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Photo validation failed.");
+      }
+
+      setMessage(
+        `Photo accepted: ${data.width} × ${data.height} pixels. AI prediction is the next milestone.`
+      );
+    } catch (error) {
+      setMessage(
+        `${error.message} Make sure the AcneClear API is running.`
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
     <div className="page">
       <header className="header">
         <a className="brand" href="/"> <span className="brand-icon">✦</span><span>AcneClear <b>AI</b><small>SKIN WELLNESS STUDIO</small></span></a>
