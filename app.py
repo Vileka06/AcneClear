@@ -86,30 +86,44 @@ st.markdown("""
 header[data-testid="stHeader"] { background:rgba(247,249,252,.96); }
 h1,h2,h3,h4 { font-family:'Manrope',sans-serif !important; color:var(--navy) !important; }
 .brandbar {
-  display:flex; align-items:center; gap:13px; padding:15px 18px;
-  background:#fff; border:1px solid var(--line); border-radius:16px;
-  box-shadow:0 5px 20px rgba(36,59,99,.04); margin-bottom:22px;
+  display:flex; align-items:center; gap:14px; padding:13px 18px;
+  background:#fff; border:1px solid var(--line); border-radius:18px;
+  box-shadow:0 8px 28px rgba(36,59,99,.06); margin-bottom:20px;
 }
 .brand-icon {
-  width:43px;height:43px;border-radius:12px;background:var(--navy);
+  width:46px;height:46px;border-radius:15px;background:linear-gradient(145deg,#243B63,#54749D);
   color:white;display:flex;align-items:center;justify-content:center;
-  font:800 21px Manrope;
+  font:800 20px Manrope; box-shadow:0 6px 14px rgba(36,59,99,.2);
 }
 .brand-title {font:800 20px Manrope;color:var(--navy-deep);line-height:1.15;}
-.brand-sub {font-size:10px;letter-spacing:1.6px;color:var(--muted);margin-top:4px;}
-.demo-link {margin-left:auto;font-size:12px;font-weight:700;color:var(--navy);text-decoration:none;}
+.brand-sub {font-size:10px;letter-spacing:1.5px;color:var(--muted);margin-top:4px;}
+.demo-link {margin-left:auto;font-size:12px;font-weight:700;color:var(--navy);text-decoration:none;background:#EAF1F8;padding:10px 15px;border-radius:20px;}
 .hero {
-  background:linear-gradient(115deg,#fff 0%,#F0F5FA 100%);
-  border:1px solid var(--line); border-radius:18px; padding:27px 30px;
-  margin-bottom:18px; position:relative; overflow:hidden;
+  min-height:300px; display:flex; flex-direction:column; justify-content:center;
+  background:radial-gradient(ellipse at 82% 25%,rgba(255,255,255,.88) 0 9%,transparent 10%),
+             radial-gradient(ellipse at 88% 65%,rgba(184,207,231,.65) 0 18%,transparent 19%),
+             linear-gradient(112deg,#DCE8F5 0%,#B9CDE3 48%,#EAF1F8 100%);
+  border:1px solid #D5E1EE; border-radius:26px; padding:38px 42px;
+  margin-bottom:22px; position:relative; overflow:hidden;
+  box-shadow:0 16px 36px rgba(36,59,99,.08);
 }
 .hero:after {
-  content:""; position:absolute; width:190px;height:190px;border-radius:50%;
-  right:-65px;top:-95px;border:28px solid rgba(36,59,99,.045);
+  content:""; position:absolute; width:260px;height:260px;border-radius:48% 52% 60% 40%;
+  right:7%;top:15px;transform:rotate(-18deg);
+  background:linear-gradient(145deg,rgba(255,255,255,.75),rgba(106,139,177,.18));
+  border:1px solid rgba(255,255,255,.8); box-shadow:inset 0 0 35px rgba(255,255,255,.45);
 }
-.kicker {font-size:10px;font-weight:800;letter-spacing:2px;color:#6680A0;text-transform:uppercase;margin-bottom:8px;}
-.hero h1 {font-size:clamp(27px,3.5vw,39px);line-height:1.13;letter-spacing:-1px;margin:0;}
-.hero p {color:var(--muted);font-size:14px;line-height:1.7;max-width:760px;margin:10px 0 0;}
+.hero:before {
+  content:""; position:absolute; width:190px;height:190px;border-radius:50%;
+  right:12%;top:48px;border:1px solid rgba(36,59,99,.13);
+  box-shadow:0 0 0 18px rgba(255,255,255,.13),0 0 0 42px rgba(255,255,255,.1);
+}
+.hero-content {position:relative;z-index:2;max-width:60%;}
+.kicker {font-size:10px;font-weight:800;letter-spacing:2px;color:#496789;text-transform:uppercase;margin-bottom:10px;}
+.hero h1 {font-size:clamp(30px,4vw,48px);line-height:1.08;letter-spacing:-1.5px;margin:0;color:#172B4D !important;}
+.hero p {color:#405875;font-size:14px;line-height:1.7;max-width:500px;margin:13px 0 0;}
+.hero-chip {display:inline-block;margin-top:20px;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.9);padding:9px 14px;border-radius:20px;color:#243B63;font-size:11px;font-weight:700;}
+@media(max-width:700px){.hero{padding:28px 22px;min-height:270px}.hero-content{max-width:100%}.hero:before,.hero:after{opacity:.28;right:-55px}.brand-sub{letter-spacing:.7px}.demo-link{padding:8px 10px;font-size:10px;}}
 div[data-baseweb="tab-list"] {gap:8px;border-bottom:1px solid var(--line);padding-bottom:8px;}
 button[data-baseweb="tab"] {
   background:#fff;border:1px solid var(--line);border-radius:9px 9px 9px 9px;
@@ -161,9 +175,12 @@ st.markdown("""
   <a class="demo-link" href="https://acneclear.streamlit.app/" target="_blank">LIVE DEMO ↗</a>
 </div>
 <div class="hero">
-  <div class="kicker">A simpler way to care for your skin</div>
-  <h1>Clearer-looking photos.<br>Smarter skincare conversations.</h1>
-  <p>Retouch a portrait with the Acne Remover, or chat with the AcneClear AI assistant for simple, educational skincare guidance.</p>
+  <div class="hero-content">
+    <div class="kicker">ACNECLEAR AI · YOUR PERSONAL SKINCARE SPACE</div>
+    <h1>Feel confident.<br>Love your natural glow.</h1>
+    <p>Enhance your portrait and get simple answers to your skincare questions, all in one calm and easy-to-use space.</p>
+    <span class="hero-chip">Photo enhancement&nbsp;&nbsp; · &nbsp;&nbsp;AI skincare chat</span>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
