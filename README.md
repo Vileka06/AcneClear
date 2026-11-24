@@ -2,6 +2,17 @@
 
 A simple Streamlit mini project for photo enhancement using **GFPGAN**.
 
+## Live demo
+
+**Try AcneClear AI:** https://acneclear.streamlit.app/
+
+The live demo is intended to remain available. The repository keeps the Streamlit entry point (`app.py`), `requirements.txt`, and `packages.txt` needed by the Streamlit Community Cloud deployment. No separate React frontend or FastAPI backend is required.
+
+If the live app does not automatically pick up repository changes, open the app in the Streamlit Community Cloud dashboard and reboot it. Confirm that it is configured with:
+- Repository: `Vileka06/AcneClear`
+- Branch: `feature/acneclear-foundation`
+- Main file path: `app.py`
+
 ## Features
 
 1. Upload a photo.
@@ -9,7 +20,7 @@ A simple Streamlit mini project for photo enhancement using **GFPGAN**.
 3. Compare the original and enhanced photos.
 4. Download the enhanced photo.
 
-## Run the project
+## Run locally
 
 Use Python 3.11 for the best compatibility with the model dependencies.
 
