@@ -1,108 +1,64 @@
-# AcneClear 
+# AcneClear AI
 
-<p align="center">
-  <strong>AI-assisted portrait retouching and skin-wellness guidance</strong><br>
-  A Streamlit project with pretrained face restoration, AI-generated skincare guidance, meal planning, and a general-purpose chatbot.
-</p>
+**Live demo:** https://acneclear.streamlit.app/
 
-<p align="center">
-  <a href="https://acneclear.streamlit.app/">Open the live demo</a> 
-</p>
+AcneClear AI is a simple Streamlit application with only two features:
 
----
+1. **Acne Remover** – upload a portrait, create a softly retouched preview, compare before and after, and download the result.
+2. **AI Chatbot** – ask questions about acne, skincare routines, ingredients, sunscreen and everyday skin wellness.
 
-## Project overview
+## Technology
 
-**AcneClear AI** is a student project that brings together a simple portrait-retouching workflow and educational skin-wellness content in one web application. The interface uses a clean white, blue-grey, and navy colour palette.
+- Python and Streamlit
+- GFPGAN v1.3 for general facial restoration
+- OpenCV for gentle skin-texture smoothing
+- Google Gemini API (`gemini-3.5-flash-lite`) for the skincare chatbot
 
-## Features
-
-### 1. Acne Remover
-- Upload a portrait image in JPG, PNG, or WEBP format.
-- Generate a restored and lightly smoothed preview.
-- Compare the original and processed images.
-- Download the processed result as a PNG.
-
-### 2. Beauty Tips
-- Collects skin type, concerns, and sensitivity.
-- Uses the live AI assistant to generate general educational morning and evening skincare suggestions.
-- Includes safety guidance and does not diagnose or prescribe.
-
-### 3. Diet Planner
-- Collects food preference, Indian meal style, budget, meals, and foods to avoid.
-- Uses the live AI assistant to generate general meal ideas.
-- Does not create medical diets or promise that food cures acne.
-
-### 4. AI Chatbot
-- General-purpose chat for education, programming, science, writing, and everyday questions.
-- Project-aware answers about AcneClear architecture, GFPGAN, Qwen3, LoRA, datasets, training, metrics, and deployment.
-- Maintains recent conversation context. No live web browsing is provided.
-
-## How the photo editor works
-
-1. The user uploads a portrait.
-2. The app passes it to the pretrained **GFPGAN v1.3** face-restoration model.
-3. A separate, lightweight OpenCV bilateral-smoothing step is applied.
-4. The user compares and downloads the result.
-
-> **Model limitation:** GFPGAN is a pretrained face-restoration model, not an acne-specific detector or remover. The smoothing step is basic image processing and cannot guarantee removal of individual acne marks. The current app does not train a GAN from scratch or perform medical analysis.
-
-## Technology stack
-
-- **Python**
-- **Streamlit** — web interface
-- **GFPGAN v1.3** — pretrained facial restoration
-- **OpenCV and NumPy** — image processing
-- **Pillow** — image loading and PNG export
-- **Streamlit Community Cloud** — deployment
+**Important photo limitation:** GFPGAN is a general face-restoration model, not a dedicated acne detector or guaranteed acne-removal model. The app combines facial restoration with gentle texture smoothing. Results vary, and this is not a medical treatment.
 
 ## Run locally
 
-Recommended Python version: **3.11**.
+Use Python 3.11.
 
-1. Clone this repository:
+```bash
+git clone https://github.com/Vileka06/AcneClear.git
+cd AcneClear
 
-   ```bash
-   git clone https://github.com/Vileka06/AcneClear.git
-   cd AcneClear
-   ```
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 
-2. Create and activate a virtual environment:
+streamlit run app.py
+```
 
-   ```bash
-   python3.11 -m venv .venv
-   source .venv/bin/activate
-   ```
+Open the local URL shown in the terminal (usually http://localhost:8501).
 
-   On Windows, activate it with:
+## Enable the chatbot
 
-   ```powershell
-   .venv\Scripts\Activate.ps1
-   ```
+1. Create a Gemini API key at https://aistudio.google.com/apikey.
+2. In Streamlit Community Cloud, open the app's **Settings → Secrets**.
+3. Add the following secret:
 
-3. Install the dependencies:
+```toml
+GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+```
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+4. Save the settings and reboot the app if needed.
 
-4. Start the app:
+For local use, create `.streamlit/secrets.toml` with the same setting. Never commit this file or expose the key in source code. The app also supports the `GEMINI_MODEL` environment variable if you need to select a model available to your API key.
 
-   ```bash
-   streamlit run app.py
-   ```
+## Streamlit deployment
 
-On first use, the app downloads the official GFPGAN v1.3 checkpoint into the local `models/` directory. The model checkpoint is excluded from Git by `.gitignore`.
+Keep these settings for the existing live demo:
 
-## Deploy
+- Repository: `Vileka06/AcneClear`
+- Branch: `feature/acneclear-foundation`
+- Main file: `app.py`
+- Live URL: https://acneclear.streamlit.app/
 
-The app is deployed on Streamlit Community Cloud:
+The existing Streamlit Community Cloud app should rebuild after the GitHub commit. If it does not, open the app in the Streamlit dashboard and choose **Reboot app**.
 
-**Live app:** https://acneclear.streamlit.app/
-
-For deployment changes, connect the `Vileka06/AcneClear` repository, use the `main` branch, and set the main file to `app.py`. The Python version and dependency list are configured for the current deployment; if changing them, test the build logs before considering the deployment complete.
-
-## Repository files
+## Project files
 
 ```text
 AcneClear/
@@ -113,24 +69,6 @@ AcneClear/
 └── .gitignore
 ```
 
-## Privacy and responsible use
+## Safety note
 
-- Upload only photos you have permission to process.
-- Avoid uploading sensitive or private images to a public demo.
-- The app is an educational photo-retouching and wellness demo, not a medical device or a substitute for a dermatologist.
-- Diet and skincare information is general education and is not intended to diagnose or treat acne.
-- Never commit passwords, API keys, environment files, uploaded photos, or model-weight files to the repository.
-
-## Acknowledgements
-
-- [TencentARC GFPGAN](https://github.com/TencentARC/GFPGAN) for pretrained face-restoration technology.
-- [Streamlit](https://streamlit.io/) for the web app framework.
-
-## 4. AI assistant and fine-tuning experiment
-
-- **Live website chatbot:** Gemini 3.5 Flash-Lite using the Google AI Studio Gemini API free tier.
-- **Beauty Tips and Diet Planner:** use the same server-side AI assistant to produce educational routines and general meal ideas.
-- **Separate model-training experiment:** Qwen3-0.6B fine-tuned with LoRA in Google Colab. The saved adapter is a project training artifact and is not the online inference model in the current free website deployment.
-- **Acne Remover:** continues to use pretrained GFPGAN v1.3 and the existing OpenCV image-processing steps.
-
-See [CHATBOT_DEPLOYMENT.md](CHATBOT_DEPLOYMENT.md) for the free API-key setup. Free-tier access and quotas depend on the Google AI Studio project/account. Free-tier requests may be used to improve Google's products; do not send sensitive personal information.
+The chatbot provides general educational information only. It does not diagnose skin conditions, prescribe medication or replace a dermatologist. For deep, painful, persistent or scarring acne, seek professional advice.
