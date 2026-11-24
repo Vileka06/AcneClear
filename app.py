@@ -76,20 +76,77 @@ h1,h2,h3,h4 { font-family:'Manrope',sans-serif !important; color:var(--navy) !im
   border:1px solid var(--line); border-radius:18px; padding:27px 30px;
   margin-bottom:18px; position:relative; overflow:hidden;
 }
-.hero:after {
-  content:""; position:absolute; width:190px;height:190px;border-radius:50%;
-  right:-65px;top:-95px;border:28px solid rgba(36,59,99,.045);
+.hero {
+  display:grid; grid-template-columns:minmax(0,1.45fr) minmax(210px,.75fr);
+  align-items:center; gap:22px;
+  background:linear-gradient(115deg,#FFFFFF 0%,#EDF3FA 68%,#E4EDF7 100%);
+  border:1px solid var(--line); border-radius:24px; padding:34px 38px;
+  margin-bottom:20px; position:relative; overflow:hidden; min-height:270px;
+  box-shadow:0 12px 35px rgba(36,59,99,.055);
+}
+.hero:after {display:none;}
+.hero-copy {position:relative;z-index:2;min-width:0;}
+.hero h1 {font-size:clamp(29px,4vw,46px);line-height:1.08;letter-spacing:-1.5px;margin:0;max-width:650px;}
+.hero h1 span {color:#D98270 !important;}
+.hero p {color:#53677F;font-size:15px;line-height:1.75;max-width:590px;margin:14px 0 0;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:9px;margin-top:21px;}
+.hero-tags span {font-size:10px;letter-spacing:.7px;font-weight:800;color:#34527D;background:#FFFFFF;border:1px solid #DCE5EF;border-radius:30px;padding:8px 12px;}
+.hero-art {height:205px;position:relative;display:flex;align-items:center;justify-content:center;min-width:0;}
+.art-orbit {position:absolute;border:1px solid rgba(36,59,99,.16);border-radius:50%;transform:rotate(-25deg);}
+.orbit-one {width:210px;height:150px;}
+.orbit-two {width:170px;height:210px;transform:rotate(35deg);border-color:rgba(217,130,112,.30);}
+.art-core {width:118px;height:118px;border-radius:34px;background:linear-gradient(145deg,#243B63,#52739D);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;box-shadow:0 18px 38px rgba(36,59,99,.23);transform:rotate(-7deg);}
+.art-core span {font:800 34px Manrope;letter-spacing:-2px;color:#fff;}
+.art-core small {font:700 8px 'DM Sans';letter-spacing:1.5px;text-align:center;color:#EAF1F8;line-height:1.4;}
+.art-chip {position:absolute;background:#fff;border:1px solid #DCE5EF;border-radius:30px;padding:8px 12px;font-size:9px;font-weight:800;letter-spacing:.6px;color:#34527D;box-shadow:0 7px 18px rgba(36,59,99,.08);}
+.chip-top {top:17px;right:0;}
+.chip-bottom {bottom:13px;left:0;}
+@media (max-width:700px) {
+  .hero {grid-template-columns:1fr;padding:25px 22px;gap:0;}
+  .hero-art {height:145px;margin-top:8px;}
+  .hero h1 {font-size:32px;}
+  .hero p {font-size:14px;}
+  .brand-sub {font-size:8px;letter-spacing:1px;}
+  .demo-link {font-size:10px;}
 }
 .kicker {font-size:10px;font-weight:800;letter-spacing:2px;color:#6680A0;text-transform:uppercase;margin-bottom:8px;}
 .hero h1 {font-size:clamp(27px,3.5vw,39px);line-height:1.13;letter-spacing:-1px;margin:0;}
 .hero p {color:var(--muted);font-size:14px;line-height:1.7;max-width:760px;margin:10px 0 0;}
-div[data-baseweb="tab-list"] {gap:8px;border-bottom:1px solid var(--line);padding-bottom:8px;}
-button[data-baseweb="tab"] {
-  background:#fff;border:1px solid var(--line);border-radius:9px 9px 9px 9px;
-  color:var(--navy);font-weight:700;padding:10px 18px;
+/* Clear, high-contrast feature navigation */
+div[data-baseweb="tab-list"] {
+  display:flex; gap:12px; border-bottom:1px solid var(--line);
+  padding:8px 0 12px; overflow:visible;
 }
-button[data-baseweb="tab"][aria-selected="true"] {
-  background:var(--navy);color:#fff;border-color:var(--navy);
+div[data-baseweb="tab-list"] button[data-baseweb="tab"] {
+  flex:0 1 auto; min-width:170px; min-height:54px;
+  background:#FFFFFF !important; border:1px solid #D6E1ED !important;
+  border-radius:14px !important; padding:12px 22px !important;
+  color:#243B63 !important; font-size:16px !important; font-weight:800 !important;
+  opacity:1 !important; box-shadow:0 3px 12px rgba(36,59,99,.04);
+}
+div[data-baseweb="tab-list"] button[data-baseweb="tab"] *,
+div[data-baseweb="tab-list"] button[data-baseweb="tab"] p,
+div[data-baseweb="tab-list"] button[data-baseweb="tab"] span {
+  color:#243B63 !important; -webkit-text-fill-color:#243B63 !important;
+  opacity:1 !important; font-weight:800 !important;
+}
+div[data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"] {
+  background:#243B63 !important; border-color:#243B63 !important;
+  color:#FFFFFF !important; box-shadow:0 8px 20px rgba(36,59,99,.18);
+}
+div[data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"] *,
+div[data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"] p,
+div[data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"] span {
+  color:#FFFFFF !important; -webkit-text-fill-color:#FFFFFF !important;
+}
+div[data-baseweb="tab-highlight"] {background:#D98270 !important;height:3px !important;}
+@media (max-width: 640px) {
+  .block-container {padding-left:1rem;padding-right:1rem;padding-top:.7rem;}
+  div[data-baseweb="tab-list"] {gap:7px;}
+  div[data-baseweb="tab-list"] button[data-baseweb="tab"] {
+    min-width:0; flex:1 1 50%; padding:11px 8px !important;
+    font-size:14px !important;
+  }
 }
 div.stButton>button,div.stDownloadButton>button {
   background:var(--navy);color:#fff;border:1px solid var(--navy);
@@ -111,6 +168,38 @@ div[data-testid="stChatMessage"] {
 }
 [data-testid="stChatInput"] textarea {background:#fff !important;color:var(--navy-deep) !important;}
 .stChatFloatingInputContainer {background:rgba(247,249,252,.97) !important;}
+
+/* Force readable contrast in chat bubbles and the floating chat composer. */
+div[data-testid="stChatMessage"],
+div[data-testid="stChatMessage"] *,
+div[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"],
+div[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] *,
+div[data-testid="stChatMessage"] p,
+div[data-testid="stChatMessage"] li,
+div[data-testid="stChatMessage"] strong,
+div[data-testid="stChatMessage"] em {
+  color: #172B4D !important;
+  opacity: 1 !important;
+}
+div[data-testid="stChatMessage"] a { color: #244F86 !important; }
+[data-testid="stChatInput"],
+[data-testid="stChatInput"] *,
+[data-testid="stChatInput"] textarea,
+[data-testid="stChatInput"] textarea::placeholder {
+  color: #172B4D !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #172B4D !important;
+}
+[data-testid="stChatInput"] textarea::placeholder {
+  color: #68788D !important;
+  -webkit-text-fill-color: #68788D !important;
+  opacity: 1 !important;
+}
+div[data-testid="stMarkdownContainer"] p,
+div[data-testid="stMarkdownContainer"] li {
+  color: #172B4D;
+}
+
 .small-note {font-size:11px;color:var(--muted);line-height:1.6;}
 .section-card {
   background:#fff;border:1px solid var(--line);border-radius:15px;
@@ -129,14 +218,23 @@ st.markdown("""
   <div class="brand-icon">AC</div>
   <div>
     <div class="brand-title">AcneClear AI</div>
-    <div class="brand-sub">SKIN RETOUCHING · AI SKINCARE CHAT</div>
+    <div class="brand-sub">YOUR PERSONAL SKINCARE SPACE</div>
   </div>
-  <a class="demo-link" href="https://acneclear.streamlit.app/" target="_blank">LIVE DEMO ↗</a>
+  <a class="demo-link" href="https://acneclear.streamlit.app/" target="_blank">OPEN LIVE DEMO ↗</a>
 </div>
 <div class="hero">
-  <div class="kicker">A simpler way to care for your skin</div>
-  <h1>Clearer-looking photos.<br>Smarter skincare conversations.</h1>
-  <p>Retouch a portrait with the Acne Remover, or chat with the AcneClear AI assistant for simple, educational skincare guidance.</p>
+  <div class="hero-copy">
+    <div class="kicker">SKINCARE, MADE SIMPLE</div>
+    <h1>Your skin journey,<br><span>made a little clearer.</span></h1>
+    <p>Retouch a portrait or get simple answers to your acne and skincare questions. Choose one of the two tools below to get started.</p>
+    <div class="hero-tags"><span>01&nbsp; PHOTO RETOUCH</span><span>02&nbsp; AI SKINCARE CHAT</span></div>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+    <div class="art-core"><span>AC</span><small>SKINCARE<br>STUDIO</small></div>
+    <div class="art-chip chip-top">GENTLE · SIMPLE</div>
+    <div class="art-chip chip-bottom">YOUR SKIN, YOUR PACE</div>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -222,7 +320,8 @@ SAFETY:
 """
 
 
-def ask_gemini(prompt: str, history: list) -> str:
+def ask_gemini_stream(prompt: str, history: list):
+    """Stream a short Gemini answer so the user sees text as it is generated."""
     api_key = get_secret("GEMINI_API_KEY")
     if not api_key:
         raise RuntimeError(
@@ -230,25 +329,26 @@ def ask_gemini(prompt: str, history: list) -> str:
             "Streamlit Community Cloud → App settings → Secrets."
         )
 
+    # A short recent context reduces tokens sent on every turn.
     contents = []
-    for item in history[-8:]:
+    for item in history[-4:]:
         role = item.get("role")
         message = item.get("content", "")
         if role in ("user", "assistant") and isinstance(message, str) and message.strip():
             contents.append({
                 "role": "user" if role == "user" else "model",
-                "parts": [{"text": message[:1800]}],
+                "parts": [{"text": message[:900]}],
             })
-    contents.append({"role": "user", "parts": [{"text": prompt[:4000]}]})
+    contents.append({"role": "user", "parts": [{"text": prompt[:2000]}]})
 
     endpoint = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{GEMINI_MODEL}:generateContent"
+        f"{GEMINI_MODEL}:streamGenerateContent?alt=sse"
     )
     payload = {
         "systemInstruction": {"parts": [{"text": CHAT_SYSTEM_PROMPT}]},
         "contents": contents,
-        "generationConfig": {"maxOutputTokens": 700},
+        "generationConfig": {"maxOutputTokens": 320},
     }
 
     try:
@@ -259,36 +359,52 @@ def ask_gemini(prompt: str, history: list) -> str:
                 "Content-Type": "application/json",
             },
             json=payload,
-            timeout=(10, 60),
+            timeout=(8, 35),
+            stream=True,
         )
     except requests.Timeout as exc:
-        raise RuntimeError("The AI service took too long to respond. Please try again.") from exc
+        raise RuntimeError("Gemini took too long to start. Please try again.") from exc
     except requests.RequestException as exc:
-        raise RuntimeError("Could not connect to the AI service. Please try again.") from exc
+        raise RuntimeError("Could not connect to Gemini. Please try again.") from exc
 
     if response.status_code == 429:
-        raise RuntimeError("The Gemini request limit has been reached. Wait a little and try again.")
+        response.close()
+        raise RuntimeError("The Gemini request limit has been reached. Please wait and try again.")
     if response.status_code == 503:
-        raise RuntimeError("Gemini is temporarily busy (503). Please wait a moment and send your message again.")
-    if response.status_code in (400, 403, 404):
+        response.close()
+        raise RuntimeError("Gemini is temporarily busy. Please try again in a moment.")
+    if response.status_code >= 400:
         try:
             detail = response.json().get("error", {}).get("message", "Check the API key and model access.")
         except (ValueError, AttributeError):
             detail = "Check the API key and model access."
-        raise RuntimeError(f"Gemini could not process the request ({response.status_code}): {detail}")
-    if response.status_code >= 400:
-        raise RuntimeError(f"Gemini returned an error ({response.status_code}). Please try again.")
+        status = response.status_code
+        response.close()
+        raise RuntimeError(f"Gemini returned error {status}: {detail}")
 
     try:
-        data = response.json()
-        parts = data["candidates"][0]["content"]["parts"]
-        answer = "\n".join(part.get("text", "") for part in parts if part.get("text")).strip()
-    except (ValueError, KeyError, IndexError, TypeError) as exc:
-        raise RuntimeError("The AI returned an empty response. Please rephrase your question.") from exc
-
-    if not answer:
-        raise RuntimeError("The AI returned an empty response. Please try again.")
-    return answer
+        for raw_line in response.iter_lines():
+            if not raw_line:
+                continue
+            line = raw_line.decode("utf-8") if isinstance(raw_line, bytes) else raw_line
+            if not line.startswith("data:"):
+                continue
+            chunk = line[5:].strip()
+            if chunk == "[DONE]":
+                break
+            try:
+                data = __import__("json").loads(chunk)
+                parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+                for part in parts:
+                    text_part = part.get("text")
+                    if text_part:
+                        yield text_part
+            except (ValueError, IndexError, TypeError, AttributeError):
+                continue
+    except requests.RequestException as exc:
+        raise RuntimeError("The connection to Gemini was interrupted. Please try again.") from exc
+    finally:
+        response.close()
 
 
 tab_remover, tab_chat = st.tabs(["✦  Acne Remover", "☏  AI Chatbot"])
@@ -419,13 +535,13 @@ with tab_chat:
         with st.chat_message("assistant"):
             with st.spinner("AcneClear AI is thinking..."):
                 try:
-                    answer = ask_gemini(prompt, previous)
+                    answer = st.write_stream(ask_gemini_stream(prompt, previous))
+                    if not answer:
+                        answer = "I couldn't get a response from Gemini. Please try again."
+                        st.markdown(answer)
                 except Exception as exc:
-                    answer = (
-                        "I couldn't get a response just now. "
-                        f"{exc}"
-                    )
-                st.markdown(answer)
+                    answer = f"I couldn't get a response just now. {exc}"
+                    st.markdown(answer)
         st.session_state["acneclear_chat_history"].append(
             {"role": "assistant", "content": answer}
         )
