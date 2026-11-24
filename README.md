@@ -1,5 +1,7 @@
 # AcneClear AI
 
+**Live Demo:** [Open AcneClear AI](https://acneclear.streamlit.app/)
+
 A simple college mini project demonstrating two GAN-based image features:
 
 1. **Generate Photo** – create a new image using a trained DCGAN generator checkpoint.
