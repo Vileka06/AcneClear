@@ -111,6 +111,38 @@ div[data-testid="stChatMessage"] {
 }
 [data-testid="stChatInput"] textarea {background:#fff !important;color:var(--navy-deep) !important;}
 .stChatFloatingInputContainer {background:rgba(247,249,252,.97) !important;}
+
+/* Force readable contrast in chat bubbles and the floating chat composer. */
+div[data-testid="stChatMessage"],
+div[data-testid="stChatMessage"] *,
+div[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"],
+div[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] *,
+div[data-testid="stChatMessage"] p,
+div[data-testid="stChatMessage"] li,
+div[data-testid="stChatMessage"] strong,
+div[data-testid="stChatMessage"] em {
+  color: #172B4D !important;
+  opacity: 1 !important;
+}
+div[data-testid="stChatMessage"] a { color: #244F86 !important; }
+[data-testid="stChatInput"],
+[data-testid="stChatInput"] *,
+[data-testid="stChatInput"] textarea,
+[data-testid="stChatInput"] textarea::placeholder {
+  color: #172B4D !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #172B4D !important;
+}
+[data-testid="stChatInput"] textarea::placeholder {
+  color: #68788D !important;
+  -webkit-text-fill-color: #68788D !important;
+  opacity: 1 !important;
+}
+div[data-testid="stMarkdownContainer"] p,
+div[data-testid="stMarkdownContainer"] li {
+  color: #172B4D;
+}
+
 .small-note {font-size:11px;color:var(--muted);line-height:1.6;}
 .section-card {
   background:#fff;border:1px solid var(--line);border-radius:15px;
