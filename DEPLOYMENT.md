@@ -1,41 +1,33 @@
-# AcneClear React + FastAPI deployment
+# AcneClear photo-enhancement deployment
 
-The current Streamlit deployment at https://acneclear.streamlit.app/ is still served by the legacy root-level `app.py`. Do not delete or overwrite it during migration. The new React website and FastAPI backend are deployed as separate services.
+The repository contains a React website, a FastAPI enhancement API and a Streamlit version of the same single-feature application.
 
 ## 1. Deploy the API on Render
 
-1. Open https://dashboard.render.com/ and choose New > Blueprint.
-2. Connect this GitHub repository: `Vileka06/AcneClear`.
-3. Select branch `feature/acneclear-foundation`.
-4. Render detects the root `render.yaml`. Review the service and create it.
-5. After deployment, copy the service URL, for example `https://acneclear-api.onrender.com`.
-6. Check `https://YOUR-API-URL/api/health`.
+1. Open https://dashboard.render.com/ and create a new Blueprint.
+2. Connect Vileka06/AcneClear.
+3. Select branch feature/acneclear-foundation.
+4. Render reads render.yaml; the API root directory is backend.
+5. After deployment, test https://YOUR-API-URL/api/health.
 
-The service asks for `ACNECLEAR_WEB_ORIGIN`. It can be left blank initially because the backend also allows Vercel preview origins. After the Vercel website is deployed, set this variable to the exact production website origin in Render.
+Set ACNECLEAR_WEB_ORIGIN to the exact production website origin, such as https://your-site.vercel.app.
+
+**Hosting note:** GFPGAN requires PyTorch and image-processing dependencies, and CPU inference can use significant memory and time. Check build logs, service memory and a real enhancement request. The free service may not be sufficient for reliable production inference.
 
 ## 2. Deploy the website on Vercel
 
-1. Open https://vercel.com/new and import `Vileka06/AcneClear`.
-2. Select branch `feature/acneclear-foundation`.
-3. Set Root Directory to `frontend/website`.
-4. Framework preset: Vite.
-5. Build command: `npm run build`.
-6. Output directory: `dist`.
-7. Add environment variable:
-   - Name: `VITE_API_URL`
-   - Value: the Render API URL from step 1, without a trailing slash.
-8. Deploy.
+1. Import Vileka06/AcneClear.
+2. Choose branch feature/acneclear-foundation.
+3. Set Root Directory to frontend/website.
+4. Choose the Vite framework preset.
+5. Set build command to npm run build and output directory to dist.
+6. Add VITE_API_URL with the Render API URL (no trailing slash).
+7. Deploy, then test a real photo enhancement.
 
-Vercel automatically creates preview deployments for branch pushes. Use the production deployment URL to test the website and upload validation.
+## 3. Streamlit deployment
 
-## 3. Finish the migration
+The existing https://acneclear.streamlit.app/ address serves the root-level app.py when that Streamlit app is connected to this repository and branch. The root requirements.txt contains the Streamlit and GFPGAN dependencies.
 
-Only after both services have been tested:
-- Set `ACNECLEAR_WEB_ORIGIN` in Render to the exact Vercel production origin, e.g. `https://acneclear-ai.vercel.app`.
-- Redeploy the Render API.
-- Decide whether to use a custom domain for the React website.
-- Keep the Streamlit app and original `app.py` as a rollback copy until the new website is fully accepted.
+## 4. Privacy and limitations
 
-## Important hosting note
-
-The address `acneclear.streamlit.app` is a Streamlit Community Cloud deployment. It cannot directly host a React/Vite frontend with a separate FastAPI backend. The new React website receives a Vercel URL; the FastAPI service receives a Render URL. A custom domain can later point to Vercel. Do not promise that the old Streamlit subdomain will become the Vercel site.
+Uploaded photos are processed in memory and are not saved by the application. Model weights are downloaded separately and are excluded from Git. GFPGAN is a general face-restoration model, not an acne-specific detector or guaranteed acne-removal model. Test the deployment with non-sensitive sample photos before sharing it publicly.
