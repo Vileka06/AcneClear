@@ -1,78 +1,64 @@
 # AcneClear AI
 
-**Live demo:** https://acneclear.streamlit.app/
+A simple college mini project demonstrating two GAN-based image features:
 
-AcneClear AI is a simple Streamlit application with only two features:
+1. **Generate Photo** – create a new image using a trained DCGAN generator checkpoint.
+2. **Enhance Photo** – restore facial details in an uploaded portrait using pretrained GFPGAN.
 
-1. **Acne Remover** – upload a portrait, create a softly retouched preview, compare before and after, and download the result.
-2. **AI Chatbot** – ask questions about acne, skincare routines, ingredients, sunscreen and everyday skin wellness.
+No chatbot, skin analysis, diet planner, product recommendations, reminders, or unrelated modules are included.
 
 ## Technology
 
-- Python and Streamlit
-- GFPGAN v1.3 for general facial restoration
-- OpenCV for gentle skin-texture smoothing
-- Google Gemini API (`gemini-3.5-flash-lite`) for the skincare chatbot
-
-**Important photo limitation:** GFPGAN is a general face-restoration model, not a dedicated acne detector or guaranteed acne-removal model. The app combines facial restoration with gentle texture smoothing. Results vary, and this is not a medical treatment.
+- Python 3.11
+- Streamlit
+- PyTorch
+- DCGAN generator architecture (64 × 64 output; trained checkpoint supplied by the project owner)
+- GFPGAN v1.3 for general face restoration
+- OpenCV and Pillow
 
 ## Run locally
-
-Use Python 3.11.
 
 ```bash
 git clone https://github.com/Vileka06/AcneClear.git
 cd AcneClear
-
 python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-
 streamlit run app.py
 ```
 
-Open the local URL shown in the terminal (usually http://localhost:8501).
+Open the local URL shown in the terminal, usually http://localhost:8501.
 
-## Enable the chatbot
+## Generate Photo: required checkpoint
 
-1. Create a Gemini API key at https://aistudio.google.com/apikey.
-2. In Streamlit Community Cloud, open the app's **Settings → Secrets**.
-3. Add the following secret:
+The trained DCGAN checkpoint is not committed to this repository. In the **Generate Photo** tab, upload your trained `.pth` or `.pt` file.
 
-```toml
-GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
-```
+The current loader expects a standard DCGAN generator with:
+- latent vector size: 100
+- RGB output: 3 channels
+- image size: 64 × 64
+- base feature size: 64
+- a PyTorch generator state dictionary (or a dictionary containing `generator_state_dict`, `state_dict`, `generator`, or `G`)
 
-4. Save the settings and reboot the app if needed.
+If your Colab model uses a different architecture or layer names, adapt `DCGANGenerator` in `app.py` to match your training notebook before using its checkpoint.
 
-For local use, create `.streamlit/secrets.toml` with the same setting. Never commit this file or expose the key in source code. The app also supports the `GEMINI_MODEL` environment variable if you need to select a model available to your API key.
+## Enhance Photo
 
-## Streamlit deployment
+The first enhancement request downloads the official GFPGAN v1.3 weights into the local `models/` folder. The weights are ignored by Git and are not uploaded to the repository.
 
-Keep these settings for the existing live demo:
+GFPGAN is a general face-restoration GAN. It does not specifically detect or guarantee removal of acne.
+
+## Streamlit Community Cloud deployment
+
+Use these settings in Streamlit Community Cloud:
 
 - Repository: `Vileka06/AcneClear`
 - Branch: `main`
 - Main file: `app.py`
-- Live URL: https://acneclear.streamlit.app/
 
-The existing Streamlit Community Cloud app should rebuild after the GitHub commit. If it does not, open the app in the Streamlit dashboard and choose **Reboot app**.
+After pushing changes, reboot the app from the Streamlit dashboard if it does not rebuild automatically.
 
+## Notes
 
-
-The current repository is a Streamlit-only application. The former React/Vercel website was removed, so a Vercel deployment status for the old website project may fail; use Streamlit Community Cloud for the live app.
-
-## Project files
-
-```text
-AcneClear/
-├── app.py
-├── requirements.txt
-├── packages.txt
-├── README.md
-└── .gitignore
-```
-
-## Safety note
-
-The chatbot provides general educational information only. It does not diagnose skin conditions, prescribe medication or replace a dermatologist. For deep, painful, persistent or scarring acne, seek professional advice.
+- This project is a demonstration, not a medical application.
+- Keep model weights out of Git if they are large. Upload the generator checkpoint in the app when testing.

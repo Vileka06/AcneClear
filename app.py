@@ -1,256 +1,111 @@
 from io import BytesIO
 from pathlib import Path
-import hashlib
-import os
-import sys
 import urllib.request
 
-import cv2
 import numpy as np
-import requests
 import streamlit as st
-from PIL import Image, ImageOps, UnidentifiedImageError
+from PIL import Image, ImageOps
+import torch
+from torch import nn
 
-
-# ---------------------------------------------------------
-# AcneClear AI | Acne retouching + skincare chatbot
-# ---------------------------------------------------------
 ROOT = Path(__file__).resolve().parent
 MODEL_DIR = ROOT / "models"
 MODEL_DIR.mkdir(exist_ok=True)
-WEIGHT_PATH = MODEL_DIR / "GFPGANv1.3.pth"
-WEIGHT_URL = "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth"
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+GFPGAN_PATH = MODEL_DIR / "GFPGANv1.3.pth"
+GFPGAN_URL = "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.3.pth"
+MAX_UPLOAD_MB = 10
+LATENT_SIZE = 100
+IMAGE_SIZE = 64
 
-st.set_page_config(
-    page_title="AcneClear AI",
-    page_icon="✦",
-    layout="wide",
-    initial_sidebar_state="collapsed",
-)
-
-# Keep only the two requested features.
-for key, default in {
-    "acneclear_original": None,
-    "acneclear_result": None,
-    "acneclear_photo_hash": None,
-    "acneclear_chat_history": [],
-}.items():
-    if key not in st.session_state:
-        st.session_state[key] = default
-
+st.set_page_config(page_title="AcneClear AI", page_icon="AC", layout="wide")
 
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap');
-:root {
-  --navy:#243B63;
-  --navy-deep:#172B4D;
-  --blue:#EAF1F8;
-  --paper:#F7F9FC;
-  --line:#DCE5EF;
-  --muted:#68788D;
-  --coral:#D98270;
-}
-.stApp { background:var(--paper); color:var(--navy-deep); font-family:'DM Sans',sans-serif; }
-.block-container { max-width:1160px; padding-top:1.3rem; padding-bottom:3rem; }
-#MainMenu, footer {visibility:hidden;}
-header[data-testid="stHeader"] { background:rgba(247,249,252,.96); }
-h1,h2,h3,h4 { font-family:'Manrope',sans-serif !important; color:var(--navy) !important; }
-.brandbar {
-  display:flex; align-items:center; gap:13px; padding:15px 18px;
-  background:#fff; border:1px solid var(--line); border-radius:16px;
-  box-shadow:0 5px 20px rgba(36,59,99,.04); margin-bottom:22px;
-}
-.brand-icon {
-  width:43px;height:43px;border-radius:12px;background:var(--navy);
-  color:white;display:flex;align-items:center;justify-content:center;
-  font:800 21px Manrope;
-}
-.brand-title {font:800 20px Manrope;color:var(--navy-deep);line-height:1.15;}
-.brand-sub {font-size:10px;letter-spacing:1.6px;color:var(--muted);margin-top:4px;}
-.demo-link {margin-left:auto;font-size:12px;font-weight:700;color:var(--navy);text-decoration:none;}
-.hero {
-  background:linear-gradient(115deg,#fff 0%,#F0F5FA 100%);
-  border:1px solid var(--line); border-radius:18px; padding:27px 30px;
-  margin-bottom:18px; position:relative; overflow:hidden;
-}
-.hero {
-  display:grid; grid-template-columns:minmax(0,1.45fr) minmax(210px,.75fr);
-  align-items:center; gap:22px;
-  background:linear-gradient(115deg,#FFFFFF 0%,#EDF3FA 68%,#E4EDF7 100%);
-  border:1px solid var(--line); border-radius:24px; padding:34px 38px;
-  margin-bottom:20px; position:relative; overflow:hidden; min-height:270px;
-  box-shadow:0 12px 35px rgba(36,59,99,.055);
-}
-.hero:after {display:none;}
-.hero-copy {position:relative;z-index:2;min-width:0;}
-.hero h1 {font-size:clamp(29px,4vw,46px);line-height:1.08;letter-spacing:-1.5px;margin:0;max-width:650px;}
-.hero h1 span {color:#D98270 !important;}
-.hero p {color:#53677F;font-size:15px;line-height:1.75;max-width:590px;margin:14px 0 0;}
-.hero-tags {display:flex;flex-wrap:wrap;gap:9px;margin-top:21px;}
-.hero-tags span {font-size:10px;letter-spacing:.7px;font-weight:800;color:#34527D;background:#FFFFFF;border:1px solid #DCE5EF;border-radius:30px;padding:8px 12px;}
-.hero-art {height:205px;position:relative;display:flex;align-items:center;justify-content:center;min-width:0;}
-.art-orbit {position:absolute;border:1px solid rgba(36,59,99,.16);border-radius:50%;transform:rotate(-25deg);}
-.orbit-one {width:210px;height:150px;}
-.orbit-two {width:170px;height:210px;transform:rotate(35deg);border-color:rgba(217,130,112,.30);}
-.art-core {width:118px;height:118px;border-radius:34px;background:linear-gradient(145deg,#243B63,#52739D);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;box-shadow:0 18px 38px rgba(36,59,99,.23);transform:rotate(-7deg);}
-.art-core span {font:800 34px Manrope;letter-spacing:-2px;color:#fff;}
-.art-core small {font:700 8px 'DM Sans';letter-spacing:1.5px;text-align:center;color:#EAF1F8;line-height:1.4;}
-.art-chip {position:absolute;background:#fff;border:1px solid #DCE5EF;border-radius:30px;padding:8px 12px;font-size:9px;font-weight:800;letter-spacing:.6px;color:#34527D;box-shadow:0 7px 18px rgba(36,59,99,.08);}
-.chip-top {top:17px;right:0;}
-.chip-bottom {bottom:13px;left:0;}
-@media (max-width:700px) {
-  .hero {grid-template-columns:1fr;padding:25px 22px;gap:0;}
-  .hero-art {height:145px;margin-top:8px;}
-  .hero h1 {font-size:32px;}
-  .hero p {font-size:14px;}
-  .brand-sub {font-size:8px;letter-spacing:1px;}
-  .demo-link {font-size:10px;}
-}
-.kicker {font-size:10px;font-weight:800;letter-spacing:2px;color:#6680A0;text-transform:uppercase;margin-bottom:8px;}
-.hero h1 {font-size:clamp(27px,3.5vw,39px);line-height:1.13;letter-spacing:-1px;margin:0;}
-.hero p {color:var(--muted);font-size:14px;line-height:1.7;max-width:760px;margin:10px 0 0;}
-/* Clear, high-contrast feature navigation */
-div[data-baseweb="tab-list"] {
-  display:flex; gap:12px; border-bottom:1px solid var(--line);
-  padding:8px 0 12px; overflow:visible;
-}
-div[data-baseweb="tab-list"] button[data-baseweb="tab"] {
-  flex:0 1 auto; min-width:170px; min-height:54px;
-  background:#FFFFFF !important; border:1px solid #D6E1ED !important;
-  border-radius:14px !important; padding:12px 22px !important;
-  color:#243B63 !important; font-size:16px !important; font-weight:800 !important;
-  opacity:1 !important; box-shadow:0 3px 12px rgba(36,59,99,.04);
-}
-div[data-baseweb="tab-list"] button[data-baseweb="tab"] *,
-div[data-baseweb="tab-list"] button[data-baseweb="tab"] p,
-div[data-baseweb="tab-list"] button[data-baseweb="tab"] span {
-  color:#243B63 !important; -webkit-text-fill-color:#243B63 !important;
-  opacity:1 !important; font-weight:800 !important;
-}
-div[data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"] {
-  background:#243B63 !important; border-color:#243B63 !important;
-  color:#FFFFFF !important; box-shadow:0 8px 20px rgba(36,59,99,.18);
-}
-div[data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"] *,
-div[data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"] p,
-div[data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"] span {
-  color:#FFFFFF !important; -webkit-text-fill-color:#FFFFFF !important;
-}
-div[data-baseweb="tab-highlight"] {background:#D98270 !important;height:3px !important;}
-@media (max-width: 640px) {
-  .block-container {padding-left:1rem;padding-right:1rem;padding-top:.7rem;}
-  div[data-baseweb="tab-list"] {gap:7px;}
-  div[data-baseweb="tab-list"] button[data-baseweb="tab"] {
-    min-width:0; flex:1 1 50%; padding:11px 8px !important;
-    font-size:14px !important;
-  }
-}
+.stApp {background:#F7F9FC;color:#172B4D}
+.block-container {max-width:1000px;padding-top:2rem}
+h1,h2,h3 {color:#243B63}
 div.stButton>button,div.stDownloadButton>button {
-  background:var(--navy);color:#fff;border:1px solid var(--navy);
-  border-radius:9px;min-height:43px;font-weight:700;
+ background:#243B63;color:white;border:0;border-radius:8px;
+ min-height:42px;font-weight:700
 }
 div.stButton>button:hover,div.stDownloadButton>button:hover {
-  background:#34527D;color:#fff;border-color:#34527D;
+ background:#34527D;color:white
 }
-div.stButton>button p,div.stDownloadButton>button p {color:#fff;}
 div[data-testid="stFileUploader"] {
-  background:#fff;border:1px dashed #AFC1D5;border-radius:13px;padding:12px;
+ background:white;border:1px dashed #AFC1D5;border-radius:12px;padding:12px
 }
-div[data-testid="stImage"] img {border-radius:13px;border:1px solid var(--line);}
-div[data-testid="stChatMessage"] {
-  background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 15px;
-}
-[data-testid="stChatInput"] {
-  background:#fff;border:1px solid var(--line);border-radius:13px;
-}
-[data-testid="stChatInput"] textarea {background:#fff !important;color:var(--navy-deep) !important;}
-.stChatFloatingInputContainer {background:rgba(247,249,252,.97) !important;}
-
-/* Force readable contrast in chat bubbles and the floating chat composer. */
-div[data-testid="stChatMessage"],
-div[data-testid="stChatMessage"] *,
-div[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"],
-div[data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] *,
-div[data-testid="stChatMessage"] p,
-div[data-testid="stChatMessage"] li,
-div[data-testid="stChatMessage"] strong,
-div[data-testid="stChatMessage"] em {
-  color: #172B4D !important;
-  opacity: 1 !important;
-}
-div[data-testid="stChatMessage"] a { color: #244F86 !important; }
-[data-testid="stChatInput"],
-[data-testid="stChatInput"] *,
-[data-testid="stChatInput"] textarea,
-[data-testid="stChatInput"] textarea::placeholder {
-  color: #172B4D !important;
-  opacity: 1 !important;
-  -webkit-text-fill-color: #172B4D !important;
-}
-[data-testid="stChatInput"] textarea::placeholder {
-  color: #68788D !important;
-  -webkit-text-fill-color: #68788D !important;
-  opacity: 1 !important;
-}
-div[data-testid="stMarkdownContainer"] p,
-div[data-testid="stMarkdownContainer"] li {
-  color: #172B4D;
-}
-
-.small-note {font-size:11px;color:var(--muted);line-height:1.6;}
-.section-card {
-  background:#fff;border:1px solid var(--line);border-radius:15px;
-  padding:18px 20px;margin:8px 0 15px;
-}
-.step {font-size:10px;font-weight:800;letter-spacing:1.5px;color:#7890AA;text-transform:uppercase;}
-.section-title {font:700 19px Manrope;color:var(--navy);margin:4px 0;}
-.section-copy {font-size:13px;color:var(--muted);line-height:1.6;}
-.status {display:inline-block;background:#EAF1F8;color:#34527D;border-radius:6px;padding:6px 9px;font-size:11px;font-weight:700;}
-hr {border-color:var(--line);}
+.panel {background:white;border:1px solid #DCE5EF;border-radius:14px;padding:18px}
+.note {color:#68788D;font-size:13px}
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-<div class="brandbar">
-  <div class="brand-icon">AC</div>
-  <div>
-    <div class="brand-title">AcneClear AI</div>
-    <div class="brand-sub">YOUR PERSONAL SKINCARE SPACE</div>
-  </div>
-  <a class="demo-link" href="https://acneclear.streamlit.app/" target="_blank">OPEN LIVE DEMO ↗</a>
-</div>
-<div class="hero">
-  <div class="hero-copy">
-    <div class="kicker">SKINCARE, MADE SIMPLE</div>
-    <h1>Your skin journey,<br><span>made a little clearer.</span></h1>
-    <p>Retouch a portrait or get simple answers to your acne and skincare questions. Choose one of the two tools below to get started.</p>
-    <div class="hero-tags"><span>01&nbsp; PHOTO RETOUCH</span><span>02&nbsp; AI SKINCARE CHAT</span></div>
-  </div>
-  <div class="hero-art" aria-hidden="true">
-    <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
-    <div class="art-core"><span>AC</span><small>SKINCARE<br>STUDIO</small></div>
-    <div class="art-chip chip-top">GENTLE · SIMPLE</div>
-    <div class="art-chip chip-bottom">YOUR SKIN, YOUR PACE</div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+st.title("AcneClear AI")
+st.write("A simple GAN-based photo generation and photo enhancement project.")
+st.caption("Mini Project · Generative Adversarial Networks (GANs)")
+
+generate_tab, enhance_tab = st.tabs(["Generate Photo", "Enhance Photo"])
+
+class DCGANGenerator(nn.Module):
+    """Standard 64x64 DCGAN generator. Checkpoint must use this architecture."""
+    def __init__(self, latent_dim=LATENT_SIZE, channels=3, base=64):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.ConvTranspose2d(latent_dim, base * 8, 4, 1, 0, bias=False),
+            nn.BatchNorm2d(base * 8), nn.ReLU(True),
+            nn.ConvTranspose2d(base * 8, base * 4, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(base * 4), nn.ReLU(True),
+            nn.ConvTranspose2d(base * 4, base * 2, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(base * 2), nn.ReLU(True),
+            nn.ConvTranspose2d(base * 2, base, 4, 2, 1, bias=False),
+            nn.BatchNorm2d(base), nn.ReLU(True),
+            nn.ConvTranspose2d(base, channels, 4, 2, 1, bias=False),
+            nn.Tanh(),
+        )
+
+    def forward(self, noise):
+        return self.net(noise)
+
+
+def extract_state_dict(checkpoint):
+    if isinstance(checkpoint, dict):
+        for key in ("generator_state_dict", "state_dict", "generator", "G"):
+            value = checkpoint.get(key)
+            if isinstance(value, dict):
+                return value
+        if checkpoint and all(isinstance(v, torch.Tensor) for v in checkpoint.values()):
+            return checkpoint
+    raise ValueError("Checkpoint must contain a generator state dictionary.")
+
+
+def make_generated_image(checkpoint_bytes):
+    try:
+        checkpoint = torch.load(BytesIO(checkpoint_bytes), map_location="cpu", weights_only=True)
+    except TypeError:
+        checkpoint = torch.load(BytesIO(checkpoint_bytes), map_location="cpu")
+    state = extract_state_dict(checkpoint)
+    generator = DCGANGenerator()
+    generator.load_state_dict(state, strict=True)
+    generator.eval()
+    with torch.no_grad():
+        noise = torch.randn(1, LATENT_SIZE, 1, 1)
+        output = generator(noise)[0].cpu().clamp(-1, 1)
+        output = ((output + 1) * 127.5).byte().permute(1, 2, 0).numpy()
+    return Image.fromarray(output)
 
 
 @st.cache_resource(show_spinner=False)
-def load_gfpgan():
-    # Compatibility shim for BasicSR versions expecting this older torchvision module.
+def load_face_restorer():
+    # Compatibility shim for BasicSR versions that import this older torchvision path.
+    import sys
     import torchvision.transforms.functional as tv_functional
     sys.modules.setdefault("torchvision.transforms.functional_tensor", tv_functional)
     from gfpgan import GFPGANer
 
-    if not WEIGHT_PATH.exists():
-        urllib.request.urlretrieve(WEIGHT_URL, WEIGHT_PATH)
+    if not GFPGAN_PATH.exists():
+        urllib.request.urlretrieve(GFPGAN_URL, GFPGAN_PATH)
 
     return GFPGANer(
-        model_path=str(WEIGHT_PATH),
+        model_path=str(GFPGAN_PATH),
         upscale=2,
         arch="clean",
         channel_multiplier=2,
@@ -258,295 +113,79 @@ def load_gfpgan():
     )
 
 
-def soften_skin(image_rgb: np.ndarray, strength: int = 35) -> np.ndarray:
-    """Apply gentle texture smoothing; this is not a dedicated acne-segmentation model."""
-    bgr = cv2.cvtColor(image_rgb, cv2.COLOR_RGB2BGR)
-    smooth = cv2.bilateralFilter(
-        bgr,
-        d=9,
-        sigmaColor=30 + strength * 1.25,
-        sigmaSpace=30 + strength * 1.25,
-    )
-    ycrcb = cv2.cvtColor(bgr, cv2.COLOR_BGR2YCrCb)
-    mask = cv2.inRange(
-        ycrcb,
-        np.array([0, 128, 70], dtype=np.uint8),
-        np.array([255, 180, 145], dtype=np.uint8),
-    )
-    mask = cv2.GaussianBlur(mask, (0, 0), 5).astype(np.float32) / 255.0
-    mask = (mask * (strength / 100.0) * 0.72)[:, :, None]
-    blended = bgr.astype(np.float32) * (1.0 - mask) + smooth.astype(np.float32) * mask
-    return cv2.cvtColor(np.clip(blended, 0, 255).astype(np.uint8), cv2.COLOR_BGR2RGB)
-
-
-def retouch_photo(photo: Image.Image) -> Image.Image:
+def enhance_photo(photo):
+    import cv2
     rgb = np.asarray(photo.convert("RGB"))
     bgr = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-    restorer = load_gfpgan()
-    _, _, restored_bgr = restorer.enhance(
-        bgr,
-        has_aligned=False,
-        only_center_face=False,
-        paste_back=True,
-        weight=0.6,
+    restorer = load_face_restorer()
+    _, _, restored = restorer.enhance(
+        bgr, has_aligned=False, only_center_face=False,
+        paste_back=True, weight=0.6
     )
-    if restored_bgr is None:
-        raise RuntimeError("No face could be restored. Try a clear, front-facing portrait.")
-    restored_rgb = cv2.cvtColor(restored_bgr, cv2.COLOR_BGR2RGB)
-    return Image.fromarray(soften_skin(restored_rgb, 35))
+    if restored is None:
+        raise RuntimeError("No face was detected. Please upload a clear, front-facing portrait.")
+    return Image.fromarray(cv2.cvtColor(restored, cv2.COLOR_BGR2RGB))
 
 
-def get_secret(name: str) -> str:
-    try:
-        secret_value = st.secrets.get(name, "")
-    except Exception:
-        secret_value = ""
-    return str(secret_value or os.getenv(name, "")).strip()
-
-
-CHAT_SYSTEM_PROMPT = """
-You are AcneClear AI, a friendly assistant focused on acne, skincare and everyday skin wellness.
-Answer the user's actual question in clear, practical, non-judgmental language. Keep answers concise and
-explain unfamiliar terms simply. You may discuss gentle skincare routines, common acne triggers, product
-ingredient education, sunscreen, skin hygiene, and when to seek professional help.
-
-SAFETY:
-- Provide general educational information, not a medical diagnosis or personalised medical treatment.
-- Do not prescribe medicines, change a user's prescribed treatment, or promise that a product or food will cure acne.
-- Do not claim to identify a skin disease from a photo.
-- Encourage a dermatologist for deep, painful, persistent, worsening or scarring acne.
-- For pregnancy, allergies, medical conditions or medication questions, recommend a qualified clinician.
-- Do not shame the user about their appearance. Be supportive and realistic.
-"""
-
-
-def ask_gemini_stream(prompt: str, history: list):
-    """Stream a short Gemini answer so the user sees text as it is generated."""
-    api_key = get_secret("GEMINI_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "The chatbot API key is not configured. Add GEMINI_API_KEY in "
-            "Streamlit Community Cloud → App settings → Secrets."
-        )
-
-    # A short recent context reduces tokens sent on every turn.
-    contents = []
-    for item in history[-4:]:
-        role = item.get("role")
-        message = item.get("content", "")
-        if role in ("user", "assistant") and isinstance(message, str) and message.strip():
-            contents.append({
-                "role": "user" if role == "user" else "model",
-                "parts": [{"text": message[:900]}],
-            })
-    contents.append({"role": "user", "parts": [{"text": prompt[:2000]}]})
-
-    endpoint = (
-        "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{GEMINI_MODEL}:streamGenerateContent?alt=sse"
+with generate_tab:
+    st.subheader("Generate a new photo")
+    st.write("Upload your trained DCGAN generator checkpoint to create a new image.")
+    st.info(
+        "The generator checkpoint is not stored in this GitHub repository. "
+        "Upload your trained .pth file below. It must match the standard 64×64 DCGAN "
+        "generator architecture used by this app."
     )
-    payload = {
-        "systemInstruction": {"parts": [{"text": CHAT_SYSTEM_PROMPT}]},
-        "contents": contents,
-        "generationConfig": {"maxOutputTokens": 320},
-    }
-
-    try:
-        response = requests.post(
-            endpoint,
-            headers={
-                "x-goog-api-key": api_key,
-                "Content-Type": "application/json",
-            },
-            json=payload,
-            timeout=(8, 35),
-            stream=True,
-        )
-    except requests.Timeout as exc:
-        raise RuntimeError("Gemini took too long to start. Please try again.") from exc
-    except requests.RequestException as exc:
-        raise RuntimeError("Could not connect to Gemini. Please try again.") from exc
-
-    if response.status_code == 429:
-        response.close()
-        raise RuntimeError("The Gemini request limit has been reached. Please wait and try again.")
-    if response.status_code == 503:
-        response.close()
-        raise RuntimeError("Gemini is temporarily busy. Please try again in a moment.")
-    if response.status_code >= 400:
+    generator_file = st.file_uploader(
+        "DCGAN generator checkpoint (.pth)", type=["pth", "pt"], key="generator_checkpoint"
+    )
+    if st.button("Generate Photo", disabled=generator_file is None, key="generate_photo"):
         try:
-            detail = response.json().get("error", {}).get("message", "Check the API key and model access.")
-        except (ValueError, AttributeError):
-            detail = "Check the API key and model access."
-        status = response.status_code
-        response.close()
-        raise RuntimeError(f"Gemini returned error {status}: {detail}")
+            with st.spinner("Generating image with the GAN..."):
+                result = make_generated_image(generator_file.getvalue())
+            st.image(result, caption="Generated image", use_container_width=True)
+            output = BytesIO()
+            result.save(output, format="PNG")
+            st.download_button(
+                "Download generated photo", output.getvalue(),
+                file_name="acneclear_generated.png", mime="image/png"
+            )
+        except Exception as exc:
+            st.error("Could not load this generator checkpoint. Check that it matches the DCGAN architecture.")
+            st.caption(str(exc))
 
-    try:
-        for raw_line in response.iter_lines():
-            if not raw_line:
-                continue
-            line = raw_line.decode("utf-8") if isinstance(raw_line, bytes) else raw_line
-            if not line.startswith("data:"):
-                continue
-            chunk = line[5:].strip()
-            if chunk == "[DONE]":
-                break
-            try:
-                data = __import__("json").loads(chunk)
-                parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
-                for part in parts:
-                    text_part = part.get("text")
-                    if text_part:
-                        yield text_part
-            except (ValueError, IndexError, TypeError, AttributeError):
-                continue
-    except requests.RequestException as exc:
-        raise RuntimeError("The connection to Gemini was interrupted. Please try again.") from exc
-    finally:
-        response.close()
-
-
-tab_remover, tab_chat = st.tabs(["✦  Acne Remover", "☏  AI Chatbot"])
-
-with tab_remover:
-    st.markdown("""
-    <div class="section-card">
-      <div class="step">01 · PHOTO RETOUCHING</div>
-      <div class="section-title">Acne Remover</div>
-      <div class="section-copy">Upload a clear portrait to create a softly retouched preview. Compare the original and result, then save your image.</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    uploaded = st.file_uploader(
-        "Upload your portrait",
-        type=["jpg", "jpeg", "png", "webp"],
-        help="JPG, PNG or WEBP · Maximum 10 MB",
-        key="acneclear_upload",
+with enhance_tab:
+    st.subheader("Enhance an existing photo")
+    st.write("Upload a clear portrait. GFPGAN will restore facial details using a pretrained GAN model.")
+    uploaded_photo = st.file_uploader(
+        "Choose a portrait image", type=["jpg", "jpeg", "png", "webp"], key="enhance_upload"
     )
-
-    if uploaded is not None:
-        raw = uploaded.getvalue()
-        if len(raw) > MAX_UPLOAD_BYTES:
-            st.error("Please upload an image smaller than 10 MB.")
+    if uploaded_photo is not None:
+        if uploaded_photo.size > MAX_UPLOAD_MB * 1024 * 1024:
+            st.error(f"Please choose an image smaller than {MAX_UPLOAD_MB} MB.")
         else:
             try:
-                photo_hash = hashlib.sha256(raw).hexdigest()
-                original = ImageOps.exif_transpose(Image.open(BytesIO(raw))).convert("RGB")
-                if st.session_state["acneclear_photo_hash"] != photo_hash:
-                    st.session_state["acneclear_photo_hash"] = photo_hash
-                    st.session_state["acneclear_original"] = original
-                    st.session_state["acneclear_result"] = None
-
-                st.markdown('<div class="step">02 · YOUR PHOTO</div>', unsafe_allow_html=True)
+                original = ImageOps.exif_transpose(Image.open(uploaded_photo)).convert("RGB")
                 st.image(original, caption="Original photo", use_container_width=True)
-
-                if st.button("Retouch my photo", type="primary", use_container_width=True):
-                    try:
-                        with st.spinner("Retouching your photo. The first run may take longer while GFPGAN loads..."):
-                            result = retouch_photo(original)
-                        st.session_state["acneclear_result"] = result
-                        st.success("Your retouched preview is ready.")
-                    except Exception as exc:
-                        st.session_state["acneclear_result"] = None
-                        st.error("The photo could not be retouched. Try a clear, front-facing portrait.")
-                        st.caption(f"Technical detail: {type(exc).__name__}: {exc}")
-
-                result = st.session_state.get("acneclear_result")
-                if result is not None and st.session_state.get("acneclear_photo_hash") == photo_hash:
-                    st.markdown('<div class="step">03 · BEFORE & AFTER</div>', unsafe_allow_html=True)
-                    before_col, after_col = st.columns(2, gap="large")
-                    with before_col:
+                if st.button("Enhance Photo", key="enhance_photo"):
+                    with st.spinner("Restoring your photo with GFPGAN..."):
+                        enhanced = enhance_photo(original)
+                    left, right = st.columns(2)
+                    with left:
                         st.image(original, caption="Before", use_container_width=True)
-                    with after_col:
-                        st.image(result, caption="After", use_container_width=True)
-
+                    with right:
+                        st.image(enhanced, caption="After", use_container_width=True)
                     output = BytesIO()
-                    result.save(output, format="PNG")
+                    enhanced.save(output, format="PNG")
                     st.download_button(
-                        "Download retouched photo",
-                        data=output.getvalue(),
-                        file_name="acneclear_retouched.png",
-                        mime="image/png",
-                        use_container_width=True,
+                        "Download enhanced photo", output.getvalue(),
+                        file_name="acneclear_enhanced.png", mime="image/png"
                     )
-            except (UnidentifiedImageError, OSError):
-                st.error("This file could not be opened. Please choose another JPG, PNG or WEBP image.")
-    else:
-        st.session_state["acneclear_photo_hash"] = None
-        st.session_state["acneclear_original"] = None
-        st.session_state["acneclear_result"] = None
+            except Exception as exc:
+                st.error("The image could not be processed.")
+                st.caption(str(exc))
 
-    st.markdown(
-        '<p class="small-note">Photo retouching is cosmetic. GFPGAN restores facial details and the app applies gentle texture smoothing; it is not a dedicated acne-detection or medical treatment model. Results vary by photo.</p>',
-        unsafe_allow_html=True,
-    )
-
-
-with tab_chat:
-    st.markdown("""
-    <div class="section-card">
-      <div class="step">02 · SKINCARE CONVERSATION</div>
-      <div class="section-title">Ask AcneClear AI</div>
-      <div class="section-copy">Ask about acne, simple skincare routines, ingredients, sunscreen and everyday skin wellness.</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    api_ready = bool(get_secret("GEMINI_API_KEY"))
-    if api_ready:
-        st.markdown('<span class="status">● AI assistant connected</span>', unsafe_allow_html=True)
-    else:
-        st.warning(
-            "To enable the chatbot, add GEMINI_API_KEY in Streamlit Community Cloud → "
-            "App settings → Secrets. Never add the key to GitHub."
-        )
-
-    top_left, top_right = st.columns([0.75, 0.25])
-    with top_left:
-        st.caption("Your conversation stays in this app session.")
-    with top_right:
-        if st.button("New chat", use_container_width=True):
-            st.session_state["acneclear_chat_history"] = []
-            st.rerun()
-
-    with st.container(height=470, border=True):
-        if not st.session_state["acneclear_chat_history"]:
-            st.markdown(
-                "<div style='padding:34px 12px;text-align:center'>"
-                "<div style='font-size:11px;letter-spacing:1.7px;font-weight:800;color:#7890AA'>WELCOME TO ACNECLEAR</div>"
-                "<h3 style='margin:10px 0 6px'>How can I help your skin today?</h3>"
-                "<p style='color:#68788D;font-size:13px'>Ask a question about acne or skincare to get started.</p>"
-                "</div>",
-                unsafe_allow_html=True,
-            )
-        for message in st.session_state["acneclear_chat_history"]:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
-
-    prompt = st.chat_input(
-        "Ask about acne or skincare...",
-        disabled=not api_ready,
-    )
-    if prompt:
-        previous = st.session_state["acneclear_chat_history"][-8:]
-        st.session_state["acneclear_chat_history"].append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-        with st.chat_message("assistant"):
-            with st.spinner("AcneClear AI is thinking..."):
-                try:
-                    answer = st.write_stream(ask_gemini_stream(prompt, previous))
-                    if not answer:
-                        answer = "I couldn't get a response from Gemini. Please try again."
-                        st.markdown(answer)
-                except Exception as exc:
-                    answer = f"I couldn't get a response just now. {exc}"
-                    st.markdown(answer)
-        st.session_state["acneclear_chat_history"].append(
-            {"role": "assistant", "content": answer}
-        )
-
-st.markdown(
-    '<hr><p class="small-note" style="text-align:center">ACNECLEAR AI · Cosmetic photo retouching and educational skincare chat. Not a medical diagnosis or treatment service.</p>',
-    unsafe_allow_html=True,
+st.divider()
+st.caption(
+    "GFPGAN is a general face-restoration model, not a dedicated acne-removal model. "
+    "Enhancement results vary and should not be treated as medical advice."
 )
