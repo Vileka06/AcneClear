@@ -52,11 +52,15 @@ For local use, create `.streamlit/secrets.toml` with the same setting. Never com
 Keep these settings for the existing live demo:
 
 - Repository: `Vileka06/AcneClear`
-- Branch: `feature/acneclear-foundation`
+- Branch: `main`
 - Main file: `app.py`
 - Live URL: https://acneclear.streamlit.app/
 
 The existing Streamlit Community Cloud app should rebuild after the GitHub commit. If it does not, open the app in the Streamlit dashboard and choose **Reboot app**.
+
+
+
+The current repository is a Streamlit-only application. The former React/Vercel website was removed, so a Vercel deployment status for the old website project may fail; use Streamlit Community Cloud for the live app.
 
 ## Project files
 
