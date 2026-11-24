@@ -54,6 +54,33 @@ st.markdown("""
   --coral:#D98270;
 }
 .stApp { background:var(--paper); color:var(--navy-deep); font-family:'DM Sans',sans-serif; }
+/* Force readable foreground colours across Streamlit's themed widgets. */
+.stApp, .stApp p, .stApp li, .stApp label,
+.stApp [data-testid="stMarkdownContainer"],
+.stApp [data-testid="stMarkdownContainer"] p,
+.stApp [data-testid="stMarkdownContainer"] li,
+.stApp [data-testid="stCaptionContainer"],
+.stApp [data-testid="stText"],
+.stApp [data-testid="stChatMessage"] p,
+.stApp [data-testid="stChatMessage"] li,
+.stApp [data-testid="stChatMessage"] div,
+.stApp [data-testid="stFileUploader"] small,
+.stApp [data-testid="stFileUploader"] span {
+  color:var(--navy-deep) !important;
+}
+.stApp input, .stApp textarea, .stApp [contenteditable="true"] {
+  color:var(--navy-deep) !important;
+  -webkit-text-fill-color:var(--navy-deep) !important;
+}
+.stApp input::placeholder, .stApp textarea::placeholder {
+  color:#68788D !important;
+  -webkit-text-fill-color:#68788D !important;
+  opacity:1 !important;
+}
+.stApp [data-testid="stChatMessage"] {
+  color:var(--navy-deep) !important;
+}
+
 .block-container { max-width:1160px; padding-top:1.3rem; padding-bottom:3rem; }
 #MainMenu, footer {visibility:hidden;}
 header[data-testid="stHeader"] { background:rgba(247,249,252,.96); }
