@@ -222,7 +222,8 @@ SAFETY:
 """
 
 
-def ask_gemini(prompt: str, history: list) -> str:
+def ask_gemini_stream(prompt: str, history: list):
+    """Stream a short Gemini answer so the user sees text as it is generated."""
     api_key = get_secret("GEMINI_API_KEY")
     if not api_key:
         raise RuntimeError(
@@ -230,25 +231,26 @@ def ask_gemini(prompt: str, history: list) -> str:
             "Streamlit Community Cloud → App settings → Secrets."
         )
 
+    # A short recent context reduces tokens sent on every turn.
     contents = []
-    for item in history[-8:]:
+    for item in history[-4:]:
         role = item.get("role")
         message = item.get("content", "")
         if role in ("user", "assistant") and isinstance(message, str) and message.strip():
             contents.append({
                 "role": "user" if role == "user" else "model",
-                "parts": [{"text": message[:1800]}],
+                "parts": [{"text": message[:900]}],
             })
-    contents.append({"role": "user", "parts": [{"text": prompt[:4000]}]})
+    contents.append({"role": "user", "parts": [{"text": prompt[:2000]}]})
 
     endpoint = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{GEMINI_MODEL}:generateContent"
+        f"{GEMINI_MODEL}:streamGenerateContent?alt=sse"
     )
     payload = {
         "systemInstruction": {"parts": [{"text": CHAT_SYSTEM_PROMPT}]},
         "contents": contents,
-        "generationConfig": {"maxOutputTokens": 700},
+        "generationConfig": {"maxOutputTokens": 320},
     }
 
     try:
@@ -259,36 +261,52 @@ def ask_gemini(prompt: str, history: list) -> str:
                 "Content-Type": "application/json",
             },
             json=payload,
-            timeout=(10, 60),
+            timeout=(8, 35),
+            stream=True,
         )
     except requests.Timeout as exc:
-        raise RuntimeError("The AI service took too long to respond. Please try again.") from exc
+        raise RuntimeError("Gemini took too long to start. Please try again.") from exc
     except requests.RequestException as exc:
-        raise RuntimeError("Could not connect to the AI service. Please try again.") from exc
+        raise RuntimeError("Could not connect to Gemini. Please try again.") from exc
 
     if response.status_code == 429:
-        raise RuntimeError("The Gemini request limit has been reached. Wait a little and try again.")
+        response.close()
+        raise RuntimeError("The Gemini request limit has been reached. Please wait and try again.")
     if response.status_code == 503:
-        raise RuntimeError("Gemini is temporarily busy (503). Please wait a moment and send your message again.")
-    if response.status_code in (400, 403, 404):
+        response.close()
+        raise RuntimeError("Gemini is temporarily busy. Please try again in a moment.")
+    if response.status_code >= 400:
         try:
             detail = response.json().get("error", {}).get("message", "Check the API key and model access.")
         except (ValueError, AttributeError):
             detail = "Check the API key and model access."
-        raise RuntimeError(f"Gemini could not process the request ({response.status_code}): {detail}")
-    if response.status_code >= 400:
-        raise RuntimeError(f"Gemini returned an error ({response.status_code}). Please try again.")
+        status = response.status_code
+        response.close()
+        raise RuntimeError(f"Gemini returned error {status}: {detail}")
 
     try:
-        data = response.json()
-        parts = data["candidates"][0]["content"]["parts"]
-        answer = "\n".join(part.get("text", "") for part in parts if part.get("text")).strip()
-    except (ValueError, KeyError, IndexError, TypeError) as exc:
-        raise RuntimeError("The AI returned an empty response. Please rephrase your question.") from exc
-
-    if not answer:
-        raise RuntimeError("The AI returned an empty response. Please try again.")
-    return answer
+        for raw_line in response.iter_lines():
+            if not raw_line:
+                continue
+            line = raw_line.decode("utf-8") if isinstance(raw_line, bytes) else raw_line
+            if not line.startswith("data:"):
+                continue
+            chunk = line[5:].strip()
+            if chunk == "[DONE]":
+                break
+            try:
+                data = __import__("json").loads(chunk)
+                parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+                for part in parts:
+                    text_part = part.get("text")
+                    if text_part:
+                        yield text_part
+            except (ValueError, IndexError, TypeError, AttributeError):
+                continue
+    except requests.RequestException as exc:
+        raise RuntimeError("The connection to Gemini was interrupted. Please try again.") from exc
+    finally:
+        response.close()
 
 
 tab_remover, tab_chat = st.tabs(["✦  Acne Remover", "☏  AI Chatbot"])
@@ -419,13 +437,13 @@ with tab_chat:
         with st.chat_message("assistant"):
             with st.spinner("AcneClear AI is thinking..."):
                 try:
-                    answer = ask_gemini(prompt, previous)
+                    answer = st.write_stream(ask_gemini_stream(prompt, previous))
+                    if not answer:
+                        answer = "I couldn't get a response from Gemini. Please try again."
+                        st.markdown(answer)
                 except Exception as exc:
-                    answer = (
-                        "I couldn't get a response just now. "
-                        f"{exc}"
-                    )
-                st.markdown(answer)
+                    answer = f"I couldn't get a response just now. {exc}"
+                    st.markdown(answer)
         st.session_state["acneclear_chat_history"].append(
             {"role": "assistant", "content": answer}
         )
