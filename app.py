@@ -132,6 +132,24 @@ button[data-baseweb="tab"] {
 button[data-baseweb="tab"][aria-selected="true"] {
   background:var(--navy);color:#fff;border-color:var(--navy);
 }
+/* Streamlit tab text is rendered inside nested paragraph/span elements.
+   Override the app-wide paragraph colour so tab labels stay high-contrast. */
+.stApp button[data-baseweb="tab"],
+.stApp button[data-baseweb="tab"] *,
+.stApp button[data-baseweb="tab"] p,
+.stApp button[data-baseweb="tab"] span {
+  color:var(--navy) !important;
+  -webkit-text-fill-color:var(--navy) !important;
+  opacity:1 !important;
+}
+.stApp button[data-baseweb="tab"][aria-selected="true"],
+.stApp button[data-baseweb="tab"][aria-selected="true"] *,
+.stApp button[data-baseweb="tab"][aria-selected="true"] p,
+.stApp button[data-baseweb="tab"][aria-selected="true"] span {
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  opacity:1 !important;
+}
 div.stButton>button,div.stDownloadButton>button {
   background:var(--navy);color:#fff;border:1px solid var(--navy);
   border-radius:9px;min-height:43px;font-weight:700;
