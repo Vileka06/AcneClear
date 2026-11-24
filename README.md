@@ -1,20 +1,15 @@
 # AcneClear AI
 
-A simple college mini-project for photo enhancement using a pretrained GAN-based face-restoration model.
+A simple college mini-project with two features:
 
-## Main feature
-
-- **Photo Enhancement** — upload a clear portrait, restore facial details with GFPGAN v1.3, compare the original and enhanced image, and download the result.
-
-The app intentionally keeps the earlier working, simple photo-enhancement flow. It does not include the chatbot, skin analysis, diet planner, product recommendations, reminders, or the unfinished DCGAN checkpoint upload screen.
+1. **Acne Remover** — upload a portrait, create a softly retouched preview using GFPGAN v1.3 and gentle image smoothing, compare before and after, and download the result.
+2. **AI Skincare Chatbot** — ask questions about acne, skincare routines, ingredients, sunscreen and everyday skin wellness. The chatbot uses the Google Gemini API and keeps conversation history for the current app session.
 
 ## Technology
 
-- Python
-- Streamlit
-- PyTorch (installed as a dependency of GFPGAN)
-- GFPGAN v1.3
-- OpenCV and Pillow
+- Python and Streamlit
+- GFPGAN v1.3, PyTorch, OpenCV and Pillow
+- Google Gemini API for the chatbot
 
 ## Run locally
 
@@ -24,21 +19,29 @@ cd AcneClear
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+Set your Gemini API key before starting the app:
+
+```bash
+export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
 streamlit run app.py
 ```
 
-Open the local URL printed in the terminal, usually http://localhost:8501.
+On macOS/Linux, run these commands in the project terminal. For Streamlit Community Cloud, add the following in **App settings → Secrets**:
 
-## Live demo deployment
+```toml
+GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+```
 
-Streamlit Community Cloud settings:
+Never commit a real API key to GitHub. If the key is missing, the photo enhancement feature remains available and the chatbot displays a setup message.
 
-- Repository: `Vileka06/AcneClear`
-- Branch: `main`
-- Main file: `app.py`
+## Live demo
 
-After the GitHub update, open the Streamlit app dashboard and select **Reboot app** if it does not redeploy automatically.
+https://acneclear.streamlit.app/
+
+Streamlit Community Cloud should deploy from the `main` branch with `app.py` as the main file. Reboot the app after updating secrets.
 
 ## Model note
 
-On first use, the app downloads the official GFPGAN v1.3 weights into the local `models/` directory. The model is a general face-restoration GAN, not a dedicated acne-removal or medical diagnosis model. Results depend on photo quality and face visibility.
+The photo feature uses GFPGAN v1.3 for general face restoration with gentle texture smoothing. It is not a dedicated acne-removal, skin-diagnosis or medical-treatment model. The chatbot provides general educational information, not medical advice.
