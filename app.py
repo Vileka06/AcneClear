@@ -76,20 +76,77 @@ h1,h2,h3,h4 { font-family:'Manrope',sans-serif !important; color:var(--navy) !im
   border:1px solid var(--line); border-radius:18px; padding:27px 30px;
   margin-bottom:18px; position:relative; overflow:hidden;
 }
-.hero:after {
-  content:""; position:absolute; width:190px;height:190px;border-radius:50%;
-  right:-65px;top:-95px;border:28px solid rgba(36,59,99,.045);
+.hero {
+  display:grid; grid-template-columns:minmax(0,1.45fr) minmax(210px,.75fr);
+  align-items:center; gap:22px;
+  background:linear-gradient(115deg,#FFFFFF 0%,#EDF3FA 68%,#E4EDF7 100%);
+  border:1px solid var(--line); border-radius:24px; padding:34px 38px;
+  margin-bottom:20px; position:relative; overflow:hidden; min-height:270px;
+  box-shadow:0 12px 35px rgba(36,59,99,.055);
+}
+.hero:after {display:none;}
+.hero-copy {position:relative;z-index:2;min-width:0;}
+.hero h1 {font-size:clamp(29px,4vw,46px);line-height:1.08;letter-spacing:-1.5px;margin:0;max-width:650px;}
+.hero h1 span {color:#D98270 !important;}
+.hero p {color:#53677F;font-size:15px;line-height:1.75;max-width:590px;margin:14px 0 0;}
+.hero-tags {display:flex;flex-wrap:wrap;gap:9px;margin-top:21px;}
+.hero-tags span {font-size:10px;letter-spacing:.7px;font-weight:800;color:#34527D;background:#FFFFFF;border:1px solid #DCE5EF;border-radius:30px;padding:8px 12px;}
+.hero-art {height:205px;position:relative;display:flex;align-items:center;justify-content:center;min-width:0;}
+.art-orbit {position:absolute;border:1px solid rgba(36,59,99,.16);border-radius:50%;transform:rotate(-25deg);}
+.orbit-one {width:210px;height:150px;}
+.orbit-two {width:170px;height:210px;transform:rotate(35deg);border-color:rgba(217,130,112,.30);}
+.art-core {width:118px;height:118px;border-radius:34px;background:linear-gradient(145deg,#243B63,#52739D);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;box-shadow:0 18px 38px rgba(36,59,99,.23);transform:rotate(-7deg);}
+.art-core span {font:800 34px Manrope;letter-spacing:-2px;color:#fff;}
+.art-core small {font:700 8px 'DM Sans';letter-spacing:1.5px;text-align:center;color:#EAF1F8;line-height:1.4;}
+.art-chip {position:absolute;background:#fff;border:1px solid #DCE5EF;border-radius:30px;padding:8px 12px;font-size:9px;font-weight:800;letter-spacing:.6px;color:#34527D;box-shadow:0 7px 18px rgba(36,59,99,.08);}
+.chip-top {top:17px;right:0;}
+.chip-bottom {bottom:13px;left:0;}
+@media (max-width:700px) {
+  .hero {grid-template-columns:1fr;padding:25px 22px;gap:0;}
+  .hero-art {height:145px;margin-top:8px;}
+  .hero h1 {font-size:32px;}
+  .hero p {font-size:14px;}
+  .brand-sub {font-size:8px;letter-spacing:1px;}
+  .demo-link {font-size:10px;}
 }
 .kicker {font-size:10px;font-weight:800;letter-spacing:2px;color:#6680A0;text-transform:uppercase;margin-bottom:8px;}
 .hero h1 {font-size:clamp(27px,3.5vw,39px);line-height:1.13;letter-spacing:-1px;margin:0;}
 .hero p {color:var(--muted);font-size:14px;line-height:1.7;max-width:760px;margin:10px 0 0;}
-div[data-baseweb="tab-list"] {gap:8px;border-bottom:1px solid var(--line);padding-bottom:8px;}
-button[data-baseweb="tab"] {
-  background:#fff;border:1px solid var(--line);border-radius:9px 9px 9px 9px;
-  color:var(--navy);font-weight:700;padding:10px 18px;
+/* Clear, high-contrast feature navigation */
+div[data-baseweb="tab-list"] {
+  display:flex; gap:12px; border-bottom:1px solid var(--line);
+  padding:8px 0 12px; overflow:visible;
 }
-button[data-baseweb="tab"][aria-selected="true"] {
-  background:var(--navy);color:#fff;border-color:var(--navy);
+div[data-baseweb="tab-list"] button[data-baseweb="tab"] {
+  flex:0 1 auto; min-width:170px; min-height:54px;
+  background:#FFFFFF !important; border:1px solid #D6E1ED !important;
+  border-radius:14px !important; padding:12px 22px !important;
+  color:#243B63 !important; font-size:16px !important; font-weight:800 !important;
+  opacity:1 !important; box-shadow:0 3px 12px rgba(36,59,99,.04);
+}
+div[data-baseweb="tab-list"] button[data-baseweb="tab"] *,
+div[data-baseweb="tab-list"] button[data-baseweb="tab"] p,
+div[data-baseweb="tab-list"] button[data-baseweb="tab"] span {
+  color:#243B63 !important; -webkit-text-fill-color:#243B63 !important;
+  opacity:1 !important; font-weight:800 !important;
+}
+div[data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"] {
+  background:#243B63 !important; border-color:#243B63 !important;
+  color:#FFFFFF !important; box-shadow:0 8px 20px rgba(36,59,99,.18);
+}
+div[data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"] *,
+div[data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"] p,
+div[data-baseweb="tab-list"] button[data-baseweb="tab"][aria-selected="true"] span {
+  color:#FFFFFF !important; -webkit-text-fill-color:#FFFFFF !important;
+}
+div[data-baseweb="tab-highlight"] {background:#D98270 !important;height:3px !important;}
+@media (max-width: 640px) {
+  .block-container {padding-left:1rem;padding-right:1rem;padding-top:.7rem;}
+  div[data-baseweb="tab-list"] {gap:7px;}
+  div[data-baseweb="tab-list"] button[data-baseweb="tab"] {
+    min-width:0; flex:1 1 50%; padding:11px 8px !important;
+    font-size:14px !important;
+  }
 }
 div.stButton>button,div.stDownloadButton>button {
   background:var(--navy);color:#fff;border:1px solid var(--navy);
@@ -161,14 +218,23 @@ st.markdown("""
   <div class="brand-icon">AC</div>
   <div>
     <div class="brand-title">AcneClear AI</div>
-    <div class="brand-sub">SKIN RETOUCHING · AI SKINCARE CHAT</div>
+    <div class="brand-sub">YOUR PERSONAL SKINCARE SPACE</div>
   </div>
-  <a class="demo-link" href="https://acneclear.streamlit.app/" target="_blank">LIVE DEMO ↗</a>
+  <a class="demo-link" href="https://acneclear.streamlit.app/" target="_blank">OPEN LIVE DEMO ↗</a>
 </div>
 <div class="hero">
-  <div class="kicker">A simpler way to care for your skin</div>
-  <h1>Clearer-looking photos.<br>Smarter skincare conversations.</h1>
-  <p>Retouch a portrait with the Acne Remover, or chat with the AcneClear AI assistant for simple, educational skincare guidance.</p>
+  <div class="hero-copy">
+    <div class="kicker">SKINCARE, MADE SIMPLE</div>
+    <h1>Your skin journey,<br><span>made a little clearer.</span></h1>
+    <p>Retouch a portrait or get simple answers to your acne and skincare questions. Choose one of the two tools below to get started.</p>
+    <div class="hero-tags"><span>01&nbsp; PHOTO RETOUCH</span><span>02&nbsp; AI SKINCARE CHAT</span></div>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+    <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
+    <div class="art-core"><span>AC</span><small>SKINCARE<br>STUDIO</small></div>
+    <div class="art-chip chip-top">GENTLE · SIMPLE</div>
+    <div class="art-chip chip-bottom">YOUR SKIN, YOUR PACE</div>
+  </div>
 </div>
 """, unsafe_allow_html=True)
 
