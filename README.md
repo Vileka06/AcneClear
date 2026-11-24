@@ -1,5 +1,7 @@
 # AcneClear AI
 
+**Live Demo:** [Open AcneClear AI](https://acneclear.streamlit.app/)
+
 A simple college mini-project with two features:
 
 1. **Acne Remover** — upload a portrait, create a softly retouched preview using GFPGAN v1.3 and gentle image smoothing, compare before and after, and download the result.
